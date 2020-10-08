@@ -88,3 +88,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Project specific
+*.xlsx
+asset_manager/data/**/*.json

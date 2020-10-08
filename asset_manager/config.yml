@@ -1,0 +1,8 @@
+mongodb:
+  db: "DB"
+  username: "USERNAME"
+  password: "PASSWORD"
+  host: "HOST"
+
+finnhub:
+  key: "KEY"

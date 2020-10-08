@@ -1,0 +1,55 @@
+asset manager objectives
+- manage a collection of assets either autonomously or by manual order
+- price various securities
+- generate various statistics and details
+
+project design
+- modules
+	- manager
+		- launch
+	- portfolio
+		- portfolio service
+	- equity
+	- database
+	- common
+		- constants
+		- math functions
+	- entities
+		- portfolio
+		- equity
+		- equity details
+
+documents
+- portfolio
+- equity_details
+
+- portfolio
+	- _id
+	- name
+	- value
+	- equities
+		- equity
+			- ticker
+			- shares
+			- weight
+			- id
+			- price
+			- details
+				- date of details
+				- daily stats
+					- daily returns
+					- daily expected return
+					- daily risk
+				- monthly stats
+					- monthly returns
+					- monthly expected return
+					- monthly risk
+				- yearly stats
+					- yearly returns
+					- yearly expected return
+					- yearly risk
+	- fixed income
+	- options
+	- futures
+	- cash
+	- foreign exchange

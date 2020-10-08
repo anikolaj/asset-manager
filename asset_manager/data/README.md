@@ -1,0 +1,1 @@
+The purpose of this directory is to cache response from finnhub.io API

@@ -1,0 +1,29 @@
+from mongoengine import *
+
+from asset_manager.entities import *
+
+# this class will handle all the queries to the asset manager database
+
+# open engine for mongodb database
+def open_connection(config):
+	connect(
+		db=config["mongodb"]["db"],
+		username=config["mongodb"]["username"],
+		password=config["mongodb"]["password"],
+		host=config["mongodb"]["host"]
+	)
+
+# method handles checking if portfolio exists in database
+def get_portfolio_by_name(portfolio_name):
+	print("checking for portfolio - " + portfolio_name)
+	portfolio_entity = Portfolio.objects(name=portfolio_name).get()
+	return(portfolio_entity)
+
+# method handles adding a portfolio to the asset manager database
+def create_portfolio(new_portfolio):
+	print("creating new portfolio")
+
+# method handles adding an equity to a portfolio in the database
+def add_equity_to_portfolio(portfolio, new_equity):
+	portfolio.equities.append(new_equity)
+	portfolio.save()
