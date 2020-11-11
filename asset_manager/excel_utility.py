@@ -148,11 +148,13 @@ class ExcelUtility:
 	
 	def create_summary_border(self, summary_sheet):
 		num_columns = 8
-		
 		cell_length = len(self.portfolio_analyzer.portfolio.equities) + 8
+		
+		# column A line for asset summary
 		for i in range(1, cell_length):
 			summary_sheet.cell(row=i, column=1).border = styles.borders.Border(right=styles.borders.Side(style="thin"))
 
+		# row 2 line for asset summary
 		for i in range(1, num_columns):
 			cell = summary_sheet.cell(row=2, column=i)
 			
@@ -161,13 +163,16 @@ class ExcelUtility:
 			else:
 				cell.border = styles.borders.Border(bottom=styles.borders.Side(style="thin"))
 	
+		# column G line for both summaries
 		border_length = len(self.portfolio_analyzer.portfolio.equities) + 6
-		for i in range(3, border_length):
+		for i in range(3, cell_length):
 			summary_sheet.cell(row=i, column=7).border = styles.borders.Border(right=styles.borders.Side(style="thin"))
 	
+		# row 7 and row 10 line for portfolio summary
+		portfolio_summary_start_row = len(self.portfolio_analyzer.portfolio.equities) + 5
 		for i in range(1, num_columns):
-			summary_sheet.cell(row=len(self.portfolio_analyzer.portfolio.equities) + 4, column=i).border = styles.borders.Border(top=styles.borders.Side(style="thin"))
-			summary_sheet.cell(row=cell_length, column=i).border = styles.borders.Border(top=styles.borders.Side(style="thin"))
+			self.set_cell_border(summary_sheet.cell(row=portfolio_summary_start_row - 1, column=i))
+			self.set_cell_border(summary_sheet.cell(row=cell_length - 1, column=i))
 	
 	def set_cell_border(self, cell):
 		if cell.border.right.style == "thin":
