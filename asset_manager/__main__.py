@@ -1,4 +1,4 @@
-from asset_manager import asset_manager
+from asset_manager.asset_manager import main
 
 if __name__ == "__main__":
-	asset_manager.launch()
+	main()

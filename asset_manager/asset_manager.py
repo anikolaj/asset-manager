@@ -11,7 +11,7 @@ from asset_manager.excel_utility import ExcelUtility
 from asset_manager.entities import *
 
 # application launch point
-def launch():
+def main():
 	print("launching asset manager")
 	configure_services()
 	

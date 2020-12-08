@@ -9,4 +9,4 @@ test:
 	nosetests -v tests/**.py
 
 run:
-	python3 -m asset_manager test
+	python3 -m asset_manager $(PORTFOLIO)
