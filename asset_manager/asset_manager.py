@@ -17,16 +17,17 @@ def main():
 	
 	portfolio_name = sys.argv[1]
 	p = db.get_portfolio_by_name(portfolio_name)
-	print("portfolio id = " + str(p.id))
 	
 	# validate if portfolio exists and create new one if desired
 	if p is None:
 		create_new = input(portfolio_name + " does not exist. Would you like to create one with this name (y/n) = ")
 		if create_new == "y":
-			# portfolio_id = database.create_portfolio(create_new)
+			portfolio_id = database.create_portfolio(create_new)
 			pass
 		else:
 			return
+	
+	print("portfolio id = " + str(p.id))
 	
 	# update assets in portfolio with current
 	portfolio_analyzer = PortfolioAnalyzer(p)

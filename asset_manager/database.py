@@ -15,9 +15,14 @@ def open_connection(config):
 
 # method handles checking if portfolio exists in database
 def get_portfolio_by_name(portfolio_name):
+	portfolio_entity = None
 	print("checking for portfolio - " + portfolio_name)
-	portfolio_entity = Portfolio.objects(name=portfolio_name).get()
-	return(portfolio_entity)
+	
+	portfolio_entities = Portfolio.objects(name=portfolio_name)
+	if len(portfolio_entities) > 0:
+		portfolio_entity = portfolio_entities.get()
+	
+	return portfolio_entity
 
 # method handles adding a portfolio to the asset manager database
 def create_portfolio(new_portfolio):
