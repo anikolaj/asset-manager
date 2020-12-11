@@ -27,11 +27,12 @@ class PortfolioAnalyzer:
 	
 	# method handles adding equity in the portfolio and database
 	def add_equity_to_portfolio(self, ticker, shares):
-		print("adding " + ticker + " to portfolio = " + str(self.portfolio.name))
-		
 		new_equity = Equity(ticker=ticker, shares=shares, weight=0, price=0)
+		
 		self.portfolio.equities.append(new_equity)
 		self.portfolio.save()
+
+		print("successfully added " + ticker + " to portfolio = " + str(self.portfolio.name))
 
 	# method handles updating equity information
 	def update_equities(self):
@@ -109,21 +110,33 @@ class PortfolioAnalyzer:
 		
 	# method computes the variances of the equities
 	def compute_variance(self, time_interval):
-		W_t = np.transpose(self.W[time_interval])
-		wC = np.matmul(self.W[time_interval], self.C[time_interval])
-		wCw_t = np.matmul(wC, W_t)
-		self.variance[time_interval] = wCw_t.item()
-		self.standard_deviation[time_interval] = math.sqrt(self.variance[time_interval])
+		variance = 0.0
+		std_dev = 0.0
+		
+		if len(self.W[time_interval]) != 0:
+			W_t = np.transpose(self.W[time_interval])
+			wC = np.matmul(self.W[time_interval], self.C[time_interval])
+			wCw_t = np.matmul(wC, W_t)
+			variance = wCw_t.item()
+			std_dev = math.sqrt(self.variance[time_interval])
+
+		self.variance[time_interval] = variance
+		self.standard_deviation[time_interval] = std_dev
 		
 	# method computes the minimum variance portfolio in weights for the equities
 	def compute_minimum_variance_portfolio(self, time_interval):
-		u = np.ones(len(self.portfolio.equities))
-		C_inv = np.linalg.inv(self.C[time_interval])
-		uC_inv = np.matmul(u, C_inv)
-		u_t = np.transpose(u)
-		uC_invu_t = np.matmul(uC_inv, u_t)
-		result = uC_inv / uC_invu_t
-		self.mvp[time_interval] = result.tolist()
+		mvp = []
+		
+		if len(self.portfolio.equities) != 0:
+			u = np.ones(len(self.portfolio.equities))
+			C_inv = np.linalg.inv(self.C[time_interval])
+			uC_inv = np.matmul(u, C_inv)
+			u_t = np.transpose(u)
+			uC_invu_t = np.matmul(uC_inv, u_t)
+			result = uC_inv / uC_invu_t
+			mvp = result.tolist()
+
+		self.mvp[time_interval] = mvp
 		
 	# method handles adjusting shares of equities to achieve the minimum variance weight
 	def reweight_to_mvp(self, time_interval):

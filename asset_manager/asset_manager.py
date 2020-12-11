@@ -17,6 +17,7 @@ def main():
 	
 	# get portfolio specified on command line
 	p = retrieve_portfolio()
+	if p is None: return
 	
 	# update assets in portfolio with current
 	portfolio_analyzer = PortfolioAnalyzer(p)
@@ -99,7 +100,7 @@ def retrieve_portfolio():
 	if p is None:
 		create_new = input(portfolio_name + " does not exist. Would you like to create one with this name (y/n) = ")
 		if create_new == "y":
-			portfolio_id = database.create_portfolio(create_new)
+			p = db.create_portfolio(portfolio_name)
 		else:
 			print("....exiting application")
 			return
