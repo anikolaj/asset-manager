@@ -15,19 +15,8 @@ def main():
 	print("launching asset manager")
 	configure_services()
 	
-	portfolio_name = sys.argv[1]
-	p = db.get_portfolio_by_name(portfolio_name)
-	
-	# validate if portfolio exists and create new one if desired
-	if p is None:
-		create_new = input(portfolio_name + " does not exist. Would you like to create one with this name (y/n) = ")
-		if create_new == "y":
-			portfolio_id = database.create_portfolio(create_new)
-			pass
-		else:
-			return
-	
-	print("portfolio id = " + str(p.id))
+	# get portfolio specified on command line
+	p = retrieve_portfolio()
 	
 	# update assets in portfolio with current
 	portfolio_analyzer = PortfolioAnalyzer(p)
@@ -100,3 +89,21 @@ def configure_services():
 	
 	db.open_connection(config)
 	equity_service.set_api_key(config)
+
+# get portfolio or create a new one
+def retrieve_portfolio():
+	portfolio_name = sys.argv[1]
+	p = db.get_portfolio_by_name(portfolio_name)
+	
+	# validate if portfolio exists and create new one if desired
+	if p is None:
+		create_new = input(portfolio_name + " does not exist. Would you like to create one with this name (y/n) = ")
+		if create_new == "y":
+			portfolio_id = database.create_portfolio(create_new)
+		else:
+			print("....exiting application")
+			return
+	
+	print("portfolio id = " + str(p.id))
+
+	return p

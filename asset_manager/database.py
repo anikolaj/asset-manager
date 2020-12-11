@@ -25,7 +25,7 @@ def get_portfolio_by_name(portfolio_name):
 	return portfolio_entity
 
 # method handles adding a portfolio to the asset manager database
-def create_portfolio(new_portfolio):
+def create_portfolio(portfolio_name):
 	print("creating new portfolio")
 
 # method handles adding an equity to a portfolio in the database
