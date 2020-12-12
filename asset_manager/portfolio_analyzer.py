@@ -118,7 +118,7 @@ class PortfolioAnalyzer:
 			wC = np.matmul(self.W[time_interval], self.C[time_interval])
 			wCw_t = np.matmul(wC, W_t)
 			variance = wCw_t.item()
-			std_dev = math.sqrt(self.variance[time_interval])
+			std_dev = math.sqrt(variance)
 
 		self.variance[time_interval] = variance
 		self.standard_deviation[time_interval] = std_dev
