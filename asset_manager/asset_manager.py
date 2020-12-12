@@ -60,12 +60,13 @@ def main():
 	print(mvps)
 	
 	# reweight portfolio to mvp
-	reweight = input("would you like to reweight based on minimum variance portfolio (y/n) = ")
-	if reweight == "y":
-		time_interval = input("what time interval for reweight (Daily, Weekly, Monthly) = ")
-		portfolio_analyzer.reweight_to_mvp(time_interval)
-		portfolio_analyzer.compute_expected_return(time_interval)
-		portfolio_analyzer.compute_variance(time_interval)
+	if len(p.equities) != 0:
+		reweight = input("would you like to reweight based on minimum variance portfolio (y/n) = ")
+		if reweight == "y":
+			time_interval = input("what time interval for reweight (Daily, Weekly, Monthly) = ")
+			portfolio_analyzer.reweight_to_mvp(time_interval)
+			portfolio_analyzer.compute_expected_return(time_interval)
+			portfolio_analyzer.compute_variance(time_interval)
 	
 	# purchase new assets
 	purchase_equity = input("would you like to order new equity (y/n) = ")
