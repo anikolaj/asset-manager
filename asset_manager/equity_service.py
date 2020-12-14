@@ -78,7 +78,7 @@ def update_equity_details(eq, time_interval):
 		
 	time_series = response["c"]
 	total_samples = len(time_series)
-	current_price = time_series[total_samples - 1]
+	current_price = round(time_series[total_samples - 1], 2)
 	percent_changes = []
 		
 	for i in range(total_samples-1, 1, -1):

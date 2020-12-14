@@ -57,7 +57,9 @@ class PortfolioAnalyzer:
 		for equity in self.portfolio.equities:
 			total_value += (equity.shares * equity.price)
 	
+		total_value = round(total_value, 8)
 		print("total portfolio value = " + str(total_value))
+		
 		self.portfolio.value = total_value
 		self.portfolio.save()
 	
@@ -105,7 +107,7 @@ class PortfolioAnalyzer:
 	# method computes the expected return of the equities
 	def compute_expected_return(self, time_interval):
 		W_t = np.transpose(self.M[time_interval])
-		result = np.matmul(W_t, self.M[time_interval])
+		result = round(np.matmul(W_t, self.M[time_interval]), 8)
 		self.expected_return[time_interval] = result
 		
 	# method computes the variances of the equities
@@ -117,8 +119,8 @@ class PortfolioAnalyzer:
 			W_t = np.transpose(self.W[time_interval])
 			wC = np.matmul(self.W[time_interval], self.C[time_interval])
 			wCw_t = np.matmul(wC, W_t)
-			variance = wCw_t.item()
-			std_dev = math.sqrt(variance)
+			variance = round(wCw_t.item(), 8)
+			std_dev = round(math.sqrt(variance), 8)
 
 		self.variance[time_interval] = variance
 		self.standard_deviation[time_interval] = std_dev
