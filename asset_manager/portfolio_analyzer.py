@@ -32,6 +32,8 @@ class PortfolioAnalyzer:
 		self.portfolio.equities.append(new_equity)
 		self.portfolio.save()
 
+		self.ticker_to_timeseries[ticker] = {}
+
 		print("successfully added " + ticker + " to portfolio = " + str(self.portfolio.name))
 
 	# method handles updating equity information
