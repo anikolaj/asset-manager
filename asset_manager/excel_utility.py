@@ -255,10 +255,12 @@ class ExcelUtility:
 
 			# expected return
 			worksheet.cell(row=ticker_row, column=4).value = self.portfolio_analyzer.ticker_to_timeseries[eq.ticker][time_interval].avg_return
+			worksheet.cell(row=ticker_row, column=4).number_format = "0.0000000000"
 			self.resize_column(worksheet, ticker_row, 4)
 
 			# standard deviation
 			worksheet.cell(row=ticker_row, column=5).value = self.portfolio_analyzer.ticker_to_timeseries[eq.ticker][time_interval].std_dev
+			worksheet.cell(row=ticker_row, column=5).number_format = "0.0000000000"
 			self.resize_column(worksheet, ticker_row, 5)
 
 			ticker_row += 1
@@ -298,6 +300,7 @@ class ExcelUtility:
 				correlation_coefficient = self.portfolio_analyzer.C[time_interval][i, j]
 
 				worksheet.cell(row=current_row, column=current_column).value = correlation_coefficient
+				worksheet.cell(row=current_row, column=current_column).number_format = "0.00000"
 				# self.resize_column(worksheet, current_row, current_column)
 
 				if j == (len(self.portfolio_analyzer.portfolio.equities) - 1):
