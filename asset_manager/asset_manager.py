@@ -90,31 +90,23 @@ def analyze(portfolio_analyzer):
 	# compute portfolio total value
 	portfolio_analyzer.compute_total_value()
 	
-	# compute feature vectors describing portfolio
-	portfolio_analyzer.compute_features("Daily")
-	portfolio_analyzer.compute_features("Weekly")
-	portfolio_analyzer.compute_features("Monthly")
+	for time in ["Daily", "Weekly", "Monthly"]:
+		# compute features w, m, and C
+		portfolio_analyzer.compute_features(time)
+		
+		# compute expected return, variance, and minimum variance portfolios
+		portfolio_analyzer.compute_expected_return(time)
+		portfolio_analyzer.compute_variance(time)
+		portfolio_analyzer.compute_minimum_variance_portfolio(time)
 	
-	# compute expected portfolio return
-	portfolio_analyzer.compute_expected_return("Daily")
-	portfolio_analyzer.compute_expected_return("Weekly")
-	portfolio_analyzer.compute_expected_return("Monthly")
 	print("---- PORTFOLIO EXPECTED RETURN ----")
 	expected_returns = json.dumps(portfolio_analyzer.expected_return, indent=2)
 	print(expected_returns)
 	
-	# compute variance and standard deviation
-	portfolio_analyzer.compute_variance("Daily")
-	portfolio_analyzer.compute_variance("Weekly")
-	portfolio_analyzer.compute_variance("Monthly")
 	print("---- PORTFOLIO STANDARD DEVIATION ----")
 	standard_deviations = json.dumps(portfolio_analyzer.standard_deviation, indent=2)
 	print(standard_deviations)
 	
-	# compute the minimum variance portfolio
-	portfolio_analyzer.compute_minimum_variance_portfolio("Daily")
-	portfolio_analyzer.compute_minimum_variance_portfolio("Weekly")
-	portfolio_analyzer.compute_minimum_variance_portfolio("Monthly")
 	print("---- MINIMUM VARIANCE PORTFOLIOS ----")
 	mvps = json.dumps(portfolio_analyzer.mvp, indent=2)
 	print(mvps)
