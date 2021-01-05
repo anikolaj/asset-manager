@@ -108,8 +108,8 @@ class PortfolioAnalyzer:
 	
 	# method computes the expected return of the equities
 	def compute_expected_return(self, time_interval):
-		W_t = np.transpose(self.M[time_interval])
-		result = round(np.matmul(W_t, self.M[time_interval]), 8)
+		W_t = np.transpose(self.W[time_interval])
+		result = round(np.matmul(self.M[time_interval], W_t), 8)
 		self.expected_return[time_interval] = result
 		
 	# method computes the variances of the equities
@@ -158,3 +158,9 @@ class PortfolioAnalyzer:
 			
 			print(self.portfolio.equities[i].ticker + " new share amount = " + str(self.portfolio.equities[i].shares))
 			print(self.portfolio.equities[i].ticker + " change in value = " + str(value_change))
+
+	# method computes the parameters that describe the minimum variance line for the assets
+	def compute_minimum_variance_line(self, time_interval):
+		u = np.ones(len(self.portfolio.equities))
+		C_inv = np.linalg.inv(self.C[time_interval])
+		uC_inv = np.matmul(u, C_inv)

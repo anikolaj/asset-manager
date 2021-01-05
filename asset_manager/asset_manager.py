@@ -90,14 +90,14 @@ def analyze(portfolio_analyzer):
 	# compute portfolio total value
 	portfolio_analyzer.compute_total_value()
 	
-	for time in ["Daily", "Weekly", "Monthly"]:
+	for time_interval in ["Daily", "Weekly", "Monthly"]:
 		# compute features w, m, and C
-		portfolio_analyzer.compute_features(time)
+		portfolio_analyzer.compute_features(time_interval)
 		
 		# compute expected return, variance, and minimum variance portfolios
-		portfolio_analyzer.compute_expected_return(time)
-		portfolio_analyzer.compute_variance(time)
-		portfolio_analyzer.compute_minimum_variance_portfolio(time)
+		portfolio_analyzer.compute_expected_return(time_interval)
+		portfolio_analyzer.compute_variance(time_interval)
+		portfolio_analyzer.compute_minimum_variance_portfolio(time_interval)
 	
 	print("---- PORTFOLIO EXPECTED RETURN ----")
 	expected_returns = json.dumps(portfolio_analyzer.expected_return, indent=2)
