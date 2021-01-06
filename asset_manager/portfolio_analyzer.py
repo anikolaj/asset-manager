@@ -162,5 +162,25 @@ class PortfolioAnalyzer:
 	# method computes the parameters that describe the minimum variance line for the assets
 	def compute_minimum_variance_line(self, time_interval):
 		u = np.ones(len(self.portfolio.equities))
+		u_t = np.transpose(u)
+		M_t = np.transpose(self.M[time_interval])
+		
 		C_inv = np.linalg.inv(self.C[time_interval])
 		uC_inv = np.matmul(u, C_inv)
+		mC_inv = np.matmul(self.M[time_interval], C_inv)
+		
+		a_bar = np.matmul(uC_inv, M_t)
+		b_bar = np.matmul(mC_inv, M_t)
+		c_bar = np.matmul(uC_inv, u_t)
+
+		denom = (b_bar * c_bar) - (a_bar ** 2)
+		
+		# w = a * m_v + b
+		a = np.matmul(((c_bar * self.M[time_interval]) - (a_bar * u)), C_inv) / denom
+		b = np.matmul(((b_bar * u) - (a_bar * self.M[time_interval])), C_inv) / denom
+
+		print("a parameter")
+		print(a)
+		print("")
+		print("b parameter")
+		print(b)

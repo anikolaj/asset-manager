@@ -98,6 +98,9 @@ def analyze(portfolio_analyzer):
 		portfolio_analyzer.compute_expected_return(time_interval)
 		portfolio_analyzer.compute_variance(time_interval)
 		portfolio_analyzer.compute_minimum_variance_portfolio(time_interval)
+
+		# compute the minimum variance line
+		portfolio_analyzer.compute_minimum_variance_line(time_interval)
 	
 	print("---- PORTFOLIO EXPECTED RETURN ----")
 	expected_returns = json.dumps(portfolio_analyzer.expected_return, indent=2)
