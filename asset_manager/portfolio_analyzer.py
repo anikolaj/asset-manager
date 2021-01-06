@@ -24,6 +24,13 @@ class PortfolioAnalyzer:
 		self.standard_deviation = {}
 	
 		self.mvp = {}
+
+		self.a = {}
+		self.b = {}
+		
+		self.mvl_a = {}
+		self.mvl_b = {}
+		self.mvl_c = {}
 	
 	# method handles adding equity in the portfolio and database
 	def add_equity_to_portfolio(self, ticker, shares):
@@ -176,11 +183,18 @@ class PortfolioAnalyzer:
 		denom = (b_bar * c_bar) - (a_bar ** 2)
 		
 		# w = a * m_v + b
-		a = np.matmul(((c_bar * self.M[time_interval]) - (a_bar * u)), C_inv) / denom
-		b = np.matmul(((b_bar * u) - (a_bar * self.M[time_interval])), C_inv) / denom
+		self.a[time_interval] = np.matmul(((c_bar * self.M[time_interval]) - (a_bar * u)), C_inv) / denom
+		self.b[time_interval] = np.matmul(((b_bar * u) - (a_bar * self.M[time_interval])), C_inv) / denom
 
 		print("a parameter")
-		print(a)
+		print(self.a[time_interval])
 		print("")
 		print("b parameter")
-		print(b)
+		print(self.b[time_interval])
+
+		# sigma_v = sqrt(aCa^T * m_v^2 + 2*aCb^T*m_v + bCb^T)
+		a_t = np.transpose(self.a[time_interval])
+		b_t = np.transpose(self.b[time_interval])
+
+		aC = np.matmul(self.a[time_interval], self.C[time_interval])
+		bC = np.matmul(self.b[time_interval], self.C[time_interval])
