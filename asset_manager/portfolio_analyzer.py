@@ -116,7 +116,7 @@ class PortfolioAnalyzer:
 	# method computes the expected return of the equities
 	def compute_expected_return(self, time_interval):
 		W_t = np.transpose(self.W[time_interval])
-		result = round(np.matmul(self.M[time_interval], W_t), 8)
+		result = round(self.M[time_interval] @ W_t, 8)
 		self.expected_return[time_interval] = result
 		
 	# method computes the variances of the equities
@@ -126,8 +126,7 @@ class PortfolioAnalyzer:
 		
 		if len(self.W[time_interval]) != 0:
 			W_t = np.transpose(self.W[time_interval])
-			wC = np.matmul(self.W[time_interval], self.C[time_interval])
-			wCw_t = np.matmul(wC, W_t)
+			wCw_t = self.W[time_interval] @ self.C[time_interval] @ W_t
 			variance = round(wCw_t.item(), 8)
 			std_dev = round(math.sqrt(variance), 8)
 
@@ -140,11 +139,13 @@ class PortfolioAnalyzer:
 		
 		if len(self.portfolio.equities) != 0:
 			u = np.ones(len(self.portfolio.equities))
-			C_inv = np.linalg.inv(self.C[time_interval])
-			uC_inv = np.matmul(u, C_inv)
 			u_t = np.transpose(u)
-			uC_invu_t = np.matmul(uC_inv, u_t)
+			C_inv = np.linalg.inv(self.C[time_interval])
+			
+			uC_inv = u @ C_inv
+			uC_invu_t = uC_inv @ u_t
 			result = uC_inv / uC_invu_t
+			
 			mvp = result.tolist()
 
 		self.mvp[time_interval] = mvp
@@ -172,19 +173,15 @@ class PortfolioAnalyzer:
 		u_t = np.transpose(u)
 		M_t = np.transpose(self.M[time_interval])
 		
-		C_inv = np.linalg.inv(self.C[time_interval])
-		uC_inv = np.matmul(u, C_inv)
-		mC_inv = np.matmul(self.M[time_interval], C_inv)
-		
-		a_bar = np.matmul(uC_inv, M_t)
-		b_bar = np.matmul(mC_inv, M_t)
-		c_bar = np.matmul(uC_inv, u_t)
+		a_bar = u @ C_inv @ M_t
+		b_bar = m @ C_inv @ M_t
+		c_bar = u @ C_inv @ u_t
 
 		denom = (b_bar * c_bar) - (a_bar ** 2)
 		
 		# w = a * m_v + b
-		self.a[time_interval] = np.matmul(((c_bar * self.M[time_interval]) - (a_bar * u)), C_inv) / denom
-		self.b[time_interval] = np.matmul(((b_bar * u) - (a_bar * self.M[time_interval])), C_inv) / denom
+		self.a[time_interval] = (((c_bar * self.M[time_interval]) - (a_bar * u)) @ C_inv) / denom
+		self.b[time_interval] = (((b_bar * u) - (a_bar * self.M[time_interval])) @ C_inv) / denom
 
 		print("a parameter")
 		print(self.a[time_interval])
@@ -196,5 +193,6 @@ class PortfolioAnalyzer:
 		a_t = np.transpose(self.a[time_interval])
 		b_t = np.transpose(self.b[time_interval])
 
-		aC = np.matmul(self.a[time_interval], self.C[time_interval])
-		bC = np.matmul(self.b[time_interval], self.C[time_interval])
+		self.mvl_a[time_interval] = self.a[time_interval] @ self.C[time_interval] @ a_t
+		self.mvl_b[time_interval] = 2 * (self.b[time_interval] @ self.C[time_interval] @ b_t)
+		self.mvl_c[time_interval] = self.b[time_interval] @ self.C[time_interval] @ b_t
