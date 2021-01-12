@@ -1,4 +1,5 @@
 import os
+import math
 from openpyxl import *
 
 class ExcelUtility:
@@ -16,6 +17,8 @@ class ExcelUtility:
 		self.write_summary()
 		self.write_statistics()
 		self.write_mvp()
+		# WIP - creating plot for minimum variance line
+		# self.write_mvl()
 		
 		self.workbook.save(filename=self.file_name)
 
@@ -177,6 +180,13 @@ class ExcelUtility:
 		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
 		self.write_time_mvp(mvp_sheet, start_row, "Monthly")
 
+	def write_mvl(self):
+		mvl_sheet = self.workbook.create_sheet("MVL")
+
+		self.set_cell(mvl_sheet, mvl_sheet["A1"], "Minimum Variance Lines", True, None)
+
+		self.write_time_mvl(mvl_sheet, 1, "Monthly")
+	
 	def resize_column(self, worksheet, row, column):
 		column_str = utils.get_column_letter(column)
 		# this line is set because formating with a specified number format takes the original value not the formatted value
@@ -288,6 +298,45 @@ class ExcelUtility:
 			value_change = new_value - old_value
 			self.set_cell(worksheet, worksheet.cell(row=current_row, column=6), value_change, False, None)
 
+	def write_time_mvl(self, worksheet, current_row, time_interval):
+		row = 2
+		
+		for i in range(5, 50):
+			sigma_v = i / 10
+			print("sigma_v - " + str(sigma_v))
+			print("a - " + str(self.portfolio_analyzer.mvl_a[time_interval]))
+			print("b - " + str(self.portfolio_analyzer.mvl_b[time_interval]))
+			print("c - " + str(self.portfolio_analyzer.mvl_c[time_interval]))
+			
+			r = (self.portfolio_analyzer.mvl_b[time_interval] ** 2) - (4 * self.portfolio_analyzer.mvl_a[time_interval] * (self.portfolio_analyzer.mvl_c[time_interval] - sigma_v))
+
+			print("r val - " + str(r))
+			
+			m_v1 = (-self.portfolio_analyzer.mvl_b[time_interval] + math.sqrt(r)) / (2 * self.portfolio_analyzer.mvl_a[time_interval])
+			m_v2 = (-self.portfolio_analyzer.mvl_b[time_interval] - math.sqrt(r)) / (2 * self.portfolio_analyzer.mvl_a[time_interval])
+
+			self.set_cell(worksheet, worksheet.cell(row=row, column=1), sigma_v, False, None)
+			self.set_cell(worksheet, worksheet.cell(row=row+1, column=1), sigma_v, False, None)
+			
+			self.set_cell(worksheet, worksheet.cell(row=row, column=2), m_v1, False, None)
+			self.set_cell(worksheet, worksheet.cell(row=row+1, column=2), m_v2, False, None)
+
+			row = row + 2
+
+		c1 = chart.ScatterChart()
+		c1.title = "MVL"
+		
+		xvalues = chart.Reference(worksheet, min_col=1, min_row=2, max_col=1, max_row=45)
+		values = chart.Reference(worksheet, min_col=2, min_row=2, max_col=2, max_row=45)
+		series = chart.Series(values, xvalues)
+		
+		series.marker=chart.lineMarker.Marker('circle')
+		series.graphicalProperties.line.noFill=True
+		c1.series.append(series)
+		c1.title = "Minimum Variance Line"
+
+		worksheet.add_chart(c1, "E4")
+	
 	def set_cell(self, sheet, cell, value, bold, fill, number_format=None):
 		cell.value = value
 		

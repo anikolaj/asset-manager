@@ -172,9 +172,10 @@ class PortfolioAnalyzer:
 		u = np.ones(len(self.portfolio.equities))
 		u_t = np.transpose(u)
 		M_t = np.transpose(self.M[time_interval])
+		C_inv = np.linalg.inv(self.C[time_interval])
 		
 		a_bar = u @ C_inv @ M_t
-		b_bar = m @ C_inv @ M_t
+		b_bar = self.M[time_interval] @ C_inv @ M_t
 		c_bar = u @ C_inv @ u_t
 
 		denom = (b_bar * c_bar) - (a_bar ** 2)
@@ -194,5 +195,5 @@ class PortfolioAnalyzer:
 		b_t = np.transpose(self.b[time_interval])
 
 		self.mvl_a[time_interval] = self.a[time_interval] @ self.C[time_interval] @ a_t
-		self.mvl_b[time_interval] = 2 * (self.b[time_interval] @ self.C[time_interval] @ b_t)
+		self.mvl_b[time_interval] = 2 * (self.a[time_interval] @ self.C[time_interval] @ b_t)
 		self.mvl_c[time_interval] = self.b[time_interval] @ self.C[time_interval] @ b_t
