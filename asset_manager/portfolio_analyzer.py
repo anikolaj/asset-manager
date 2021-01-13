@@ -115,9 +115,7 @@ class PortfolioAnalyzer:
 	
 	# method computes the expected return of the equities
 	def compute_expected_return(self, time_interval):
-		W_t = np.transpose(self.W[time_interval])
-		result = round(self.M[time_interval] @ W_t, 8)
-		self.expected_return[time_interval] = result
+		self.expected_return[time_interval] = mf.calculate_expected_value(self.M[time_interval], self.W[time_interval])
 		
 	# method computes the variances of the equities
 	def compute_variance(self, time_interval):
@@ -125,9 +123,7 @@ class PortfolioAnalyzer:
 		std_dev = 0.0
 		
 		if len(self.W[time_interval]) != 0:
-			W_t = np.transpose(self.W[time_interval])
-			wCw_t = self.W[time_interval] @ self.C[time_interval] @ W_t
-			variance = round(wCw_t.item(), 8)
+			variance = mf.calculate_variance(self.C[time_interval], self.W[time_interval])
 			std_dev = round(math.sqrt(variance), 8)
 
 		self.variance[time_interval] = variance

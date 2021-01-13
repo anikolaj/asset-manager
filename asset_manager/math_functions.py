@@ -1,3 +1,5 @@
+import numpy as np
+
 from scipy.stats import pearsonr
 
 def compute_covariance_with_correlation_coefficient(x_data, y_data, x_stdev, y_stdev):
@@ -15,3 +17,14 @@ def compute_covariance_with_correlation_coefficient(x_data, y_data, x_stdev, y_s
 	covariance = rho * x_stdev * y_stdev
 	
 	return covariance
+
+def calculate_expected_value(X, p):
+	p_t = np.transpose(p)
+	expected_value = round(X @ p_t, 8)
+	return expected_value
+
+def calculate_variance(C, p):
+	p_t = np.transpose(p)
+	variance = p @ C @ p_t
+	variance = round(variance.item(), 8)
+	return variance
