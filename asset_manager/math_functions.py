@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 from scipy.stats import pearsonr
@@ -28,3 +29,14 @@ def calculate_variance(C, p):
 	variance = p @ C @ p_t
 	variance = round(variance.item(), 8)
 	return variance
+
+def solve_quadratic_formula(a, b, c):
+	r = (b ** 2) - (4 * a * c)
+
+	if r == -1:
+		return None
+
+	x1 = (-b + math.sqrt(r)) / (2 * a)
+	x2 = (-b - math.sqrt(r)) / (2 * a)
+
+	return x1, x2

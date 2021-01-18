@@ -2,6 +2,8 @@ import os
 import math
 from openpyxl import *
 
+import asset_manager.math_functions as mf
+
 class ExcelUtility:
 	
 	yellow_background = styles.PatternFill(fgColor=styles.colors.YELLOW, fill_type="solid")
@@ -18,7 +20,7 @@ class ExcelUtility:
 		self.write_statistics()
 		self.write_mvp()
 		# WIP - creating plot for minimum variance line
-		# self.write_mvl()
+		self.write_mvl()
 		
 		self.workbook.save(filename=self.file_name)
 
@@ -183,9 +185,13 @@ class ExcelUtility:
 	def write_mvl(self):
 		mvl_sheet = self.workbook.create_sheet("MVL")
 
-		self.set_cell(mvl_sheet, mvl_sheet["A1"], "Minimum Variance Lines", True, None)
+		self.set_cell(mvl_sheet, mvl_sheet["A1"], "Minimum Variance Line - Monthly", True, None)
+		
+		self.set_cell(mvl_sheet, mvl_sheet["A2"], "Standard Deviation", False, None)
+		self.set_cell(mvl_sheet, mvl_sheet["B2"], "Efficient Expected Return", False, None)
+		self.set_cell(mvl_sheet, mvl_sheet["C2"], "Inefficient Expected Return", False, None)
 
-		self.write_time_mvl(mvl_sheet, 1, "Monthly")
+		self.write_time_mvl(mvl_sheet, 3, "Monthly")
 	
 	def resize_column(self, worksheet, row, column):
 		column_str = utils.get_column_letter(column)
@@ -299,40 +305,45 @@ class ExcelUtility:
 			self.set_cell(worksheet, worksheet.cell(row=current_row, column=6), value_change, False, None)
 
 	def write_time_mvl(self, worksheet, current_row, time_interval):
-		row = 2
-		
-		for i in range(5, 50):
-			sigma_v = i / 10
-			print("sigma_v - " + str(sigma_v))
-			print("a - " + str(self.portfolio_analyzer.mvl_a[time_interval]))
-			print("b - " + str(self.portfolio_analyzer.mvl_b[time_interval]))
-			print("c - " + str(self.portfolio_analyzer.mvl_c[time_interval]))
-			
-			r = (self.portfolio_analyzer.mvl_b[time_interval] ** 2) - (4 * self.portfolio_analyzer.mvl_a[time_interval] * (self.portfolio_analyzer.mvl_c[time_interval] - sigma_v))
+		mvp_expected_return = mf.calculate_expected_value(self.portfolio_analyzer.M[time_interval], self.portfolio_analyzer.mvp[time_interval])
+		mvp_std_dev = round(math.sqrt(mf.calculate_variance(self.portfolio_analyzer.C[time_interval], self.portfolio_analyzer.mvp[time_interval])), 8)
 
-			print("r val - " + str(r))
+		self.set_cell(worksheet, worksheet.cell(row=current_row, column=1), mvp_std_dev, False, None)
+		self.set_cell(worksheet, worksheet.cell(row=current_row, column=2), mvp_expected_return, False, None)
+		self.set_cell(worksheet, worksheet.cell(row=current_row, column=3), mvp_expected_return, False, None)
+		
+		row = current_row + 1
+		
+		for i in range(1, 50):
+			delta_v = i / 100
+			sigma_v = mvp_std_dev + delta_v
 			
-			m_v1 = (-self.portfolio_analyzer.mvl_b[time_interval] + math.sqrt(r)) / (2 * self.portfolio_analyzer.mvl_a[time_interval])
-			m_v2 = (-self.portfolio_analyzer.mvl_b[time_interval] - math.sqrt(r)) / (2 * self.portfolio_analyzer.mvl_a[time_interval])
+			m_v1, m_v2 = mf.solve_quadratic_formula(self.portfolio_analyzer.mvl_a[time_interval], self.portfolio_analyzer.mvl_b[time_interval], self.portfolio_analyzer.mvl_c[time_interval] - (sigma_v ** 2))
 
 			self.set_cell(worksheet, worksheet.cell(row=row, column=1), sigma_v, False, None)
-			self.set_cell(worksheet, worksheet.cell(row=row+1, column=1), sigma_v, False, None)
-			
 			self.set_cell(worksheet, worksheet.cell(row=row, column=2), m_v1, False, None)
-			self.set_cell(worksheet, worksheet.cell(row=row+1, column=2), m_v2, False, None)
+			self.set_cell(worksheet, worksheet.cell(row=row, column=3), m_v2, False, None)
 
-			row = row + 2
+			row = row + 1
 
 		c1 = chart.ScatterChart()
 		c1.title = "MVL"
 		
-		xvalues = chart.Reference(worksheet, min_col=1, min_row=2, max_col=1, max_row=45)
-		values = chart.Reference(worksheet, min_col=2, min_row=2, max_col=2, max_row=45)
-		series = chart.Series(values, xvalues)
+		xvalues = chart.Reference(worksheet, min_col=1, min_row=3, max_col=1, max_row=45)
+		values1 = chart.Reference(worksheet, min_col=2, min_row=3, max_col=2, max_row=45)
+		series1 = chart.Series(values1, xvalues)
 		
-		series.marker=chart.lineMarker.Marker('circle')
-		series.graphicalProperties.line.noFill=True
-		c1.series.append(series)
+		series1.marker=chart.marker.Marker('circle')
+		# series1.graphicalProperties.line.noFill=True
+		c1.series.append(series1)
+		
+		values2 = chart.Reference(worksheet, min_col=3, min_row=3, max_col=3, max_row=45)
+		series2 = chart.Series(values2, xvalues)
+		
+		series2.marker=chart.marker.Marker('circle')
+		# series2.graphicalProperties.line.noFill=True
+		c1.series.append(series2)
+		
 		c1.title = "Minimum Variance Line"
 
 		worksheet.add_chart(c1, "E4")
