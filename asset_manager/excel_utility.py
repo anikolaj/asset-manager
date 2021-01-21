@@ -328,7 +328,6 @@ class ExcelUtility:
 			row = row + 1
 
 		c1 = chart.ScatterChart()
-		c1.title = "MVL"
 		
 		xvalues = chart.Reference(worksheet, min_col=1, min_row=3, max_col=1, max_row=45)
 		values1 = chart.Reference(worksheet, min_col=2, min_row=3, max_col=2, max_row=45)
@@ -346,6 +345,8 @@ class ExcelUtility:
 		c1.series.append(series2)
 		
 		c1.title = "Minimum Variance Line"
+		c1.x_axis.title = "Standard Deviation"
+		c1.y_axis.title = "Expected Return"
 
 		worksheet.add_chart(c1, "E4")
 
