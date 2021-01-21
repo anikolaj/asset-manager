@@ -331,14 +331,14 @@ class ExcelUtility:
 		
 		xvalues = chart.Reference(worksheet, min_col=1, min_row=3, max_col=1, max_row=45)
 		values1 = chart.Reference(worksheet, min_col=2, min_row=3, max_col=2, max_row=45)
-		series1 = chart.Series(values1, xvalues)
+		series1 = chart.Series(values1, xvalues, title="Efficient Frontier")
 		
 		series1.marker=chart.marker.Marker('circle')
 		# series1.graphicalProperties.line.noFill=True
 		c1.series.append(series1)
 		
 		values2 = chart.Reference(worksheet, min_col=3, min_row=3, max_col=3, max_row=45)
-		series2 = chart.Series(values2, xvalues)
+		series2 = chart.Series(values2, xvalues, title="Inefficient Frontier")
 		
 		series2.marker=chart.marker.Marker('circle')
 		# series2.graphicalProperties.line.noFill=True
