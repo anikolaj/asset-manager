@@ -188,8 +188,13 @@ class ExcelUtility:
 		self.set_cell(mvl_sheet, mvl_sheet["A1"], "Minimum Variance Line - Monthly", True, None)
 		
 		self.set_cell(mvl_sheet, mvl_sheet["A2"], "Standard Deviation", False, None)
+		mvl_sheet["A2"].border = styles.borders.Border(bottom=styles.borders.Side(style="thin"))
+		
 		self.set_cell(mvl_sheet, mvl_sheet["B2"], "Efficient Expected Return", False, None)
+		mvl_sheet["B2"].border = styles.borders.Border(bottom=styles.borders.Side(style="thin"))
+		
 		self.set_cell(mvl_sheet, mvl_sheet["C2"], "Inefficient Expected Return", False, None)
+		mvl_sheet["C2"].border = styles.borders.Border(bottom=styles.borders.Side(style="thin"))
 
 		self.write_time_mvl(mvl_sheet, 3, "Monthly")
 	
@@ -308,9 +313,7 @@ class ExcelUtility:
 		mvp_expected_return = mf.calculate_expected_value(self.portfolio_analyzer.M[time_interval], self.portfolio_analyzer.mvp[time_interval])
 		mvp_std_dev = round(math.sqrt(mf.calculate_variance(self.portfolio_analyzer.C[time_interval], self.portfolio_analyzer.mvp[time_interval])), 8)
 
-		self.set_cell(worksheet, worksheet.cell(row=current_row, column=1), mvp_std_dev, False, None)
-		self.set_cell(worksheet, worksheet.cell(row=current_row, column=2), mvp_expected_return, False, None)
-		self.set_cell(worksheet, worksheet.cell(row=current_row, column=3), mvp_expected_return, False, None)
+		self.set_mvp_entry(worksheet, current_row, mvp_std_dev, mvp_expected_return, mvp_expected_return)
 		
 		row = current_row + 1
 		
@@ -320,9 +323,7 @@ class ExcelUtility:
 			
 			m_v1, m_v2 = mf.solve_quadratic_formula(self.portfolio_analyzer.mvl_a[time_interval], self.portfolio_analyzer.mvl_b[time_interval], self.portfolio_analyzer.mvl_c[time_interval] - (sigma_v ** 2))
 
-			self.set_cell(worksheet, worksheet.cell(row=row, column=1), sigma_v, False, None)
-			self.set_cell(worksheet, worksheet.cell(row=row, column=2), m_v1, False, None)
-			self.set_cell(worksheet, worksheet.cell(row=row, column=3), m_v2, False, None)
+			self.set_mvp_entry(worksheet, row, sigma_v, m_v1, m_v2)
 
 			row = row + 1
 
@@ -347,6 +348,12 @@ class ExcelUtility:
 		c1.title = "Minimum Variance Line"
 
 		worksheet.add_chart(c1, "E4")
+
+	def set_mvp_entry(self, worksheet, row, sigma_v, m_v1, m_v2):
+		self.set_cell(worksheet, worksheet.cell(row=row, column=1), sigma_v, False, None)
+		self.set_cell(worksheet, worksheet.cell(row=row, column=2), m_v1, False, None)
+		self.set_cell(worksheet, worksheet.cell(row=row, column=3), m_v2, False, None)
+		worksheet.cell(row=row, column=3).border = styles.borders.Border(right=styles.borders.Side(style="thin"))
 	
 	def set_cell(self, sheet, cell, value, bold, fill, number_format=None):
 		cell.value = value
