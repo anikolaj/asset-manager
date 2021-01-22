@@ -13,6 +13,12 @@ class ExcelUtility:
 
 		self.workbook = Workbook()
 		self.file_name = self.portfolio_analyzer.portfolio.name + "_analysis.xlsx"
+
+		self.monthly_expected_return_row = None
+		self.monthly_expected_return_column = None
+
+		self.monthly_standard_deviation_row = None
+		self.monthly_standard_deviation_column = None
 	
 	def generate_portfolio_workbook(self):
 		print("generating portfolio")
@@ -91,6 +97,9 @@ class ExcelUtility:
 		for time in ["Daily", "Weekly", "Monthly"]:
 			expected_return = self.portfolio_analyzer.expected_return[time]
 			self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=start_column), expected_return, False, None)
+			if time == "Monthly":
+				self.monthly_expected_return_row = current_row
+				self.monthly_expected_return_column = start_column
 
 			start_column += 1
 
@@ -103,6 +112,9 @@ class ExcelUtility:
 		for time in ["Daily", "Weekly", "Monthly"]:
 			standard_deviation = self.portfolio_analyzer.standard_deviation[time]
 			self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=start_column), standard_deviation, False, None)
+			if time == "Monthly":
+				self.monthly_standard_deviation_row = current_row
+				self.monthly_standard_deviation_column = start_column
 
 			start_column += 1
 
@@ -317,7 +329,7 @@ class ExcelUtility:
 		
 		row = current_row + 1
 		
-		for i in range(1, 50):
+		for i in range(1, 50, 2):
 			delta_v = i / 100
 			sigma_v = mvp_std_dev + delta_v
 			
@@ -327,28 +339,38 @@ class ExcelUtility:
 
 			row = row + 1
 
-		c1 = chart.ScatterChart()
+		mvl_chart = chart.ScatterChart()
 		
-		xvalues = chart.Reference(worksheet, min_col=1, min_row=3, max_col=1, max_row=45)
-		values1 = chart.Reference(worksheet, min_col=2, min_row=3, max_col=2, max_row=45)
-		series1 = chart.Series(values1, xvalues, title="Efficient Frontier")
+		std_devs = chart.Reference(worksheet, min_col=1, min_row=3, max_col=1, max_row=28)
+		efficient_returns = chart.Reference(worksheet, min_col=2, min_row=3, max_col=2, max_row=28)
+		series1 = chart.Series(efficient_returns, std_devs, title="Efficient Frontier")
 		
 		series1.marker=chart.marker.Marker('circle')
 		# series1.graphicalProperties.line.noFill=True
-		c1.series.append(series1)
+		mvl_chart.series.append(series1)
 		
-		values2 = chart.Reference(worksheet, min_col=3, min_row=3, max_col=3, max_row=45)
-		series2 = chart.Series(values2, xvalues, title="Inefficient Frontier")
+		inefficient_returns = chart.Reference(worksheet, min_col=3, min_row=3, max_col=3, max_row=28)
+		series2 = chart.Series(inefficient_returns, std_devs, title="Inefficient Frontier")
 		
 		series2.marker=chart.marker.Marker('circle')
 		# series2.graphicalProperties.line.noFill=True
-		c1.series.append(series2)
-		
-		c1.title = "Minimum Variance Line"
-		c1.x_axis.title = "Standard Deviation"
-		c1.y_axis.title = "Expected Return"
+		mvl_chart.series.append(series2)
 
-		worksheet.add_chart(c1, "E4")
+		current_std_dev = chart.Reference(self.workbook["Summary"], min_col=self.monthly_standard_deviation_column, min_row=self.monthly_standard_deviation_row, max_col=self.monthly_standard_deviation_column, max_row=self.monthly_standard_deviation_row)
+		current_expected_return = chart.Reference(self.workbook["Summary"], min_col=self.monthly_expected_return_column, min_row=self.monthly_expected_return_row, max_col=self.monthly_expected_return_column, max_row=self.monthly_expected_return_row)
+		series3 = chart.Series(current_expected_return, current_std_dev, title="Current Allocation")
+		
+		series3.marker=chart.marker.Marker('circle')
+		# series2.graphicalProperties.line.noFill=True
+		mvl_chart.series.append(series3)
+		
+		mvl_chart.title = "Minimum Variance Line"
+		mvl_chart.x_axis.title = "Standard Deviation"
+		mvl_chart.y_axis.title = "Expected Return"
+		mvl_chart.height = 10
+		mvl_chart.width = 20
+
+		worksheet.add_chart(mvl_chart, "E3")
 
 	def set_mvp_entry(self, worksheet, row, sigma_v, m_v1, m_v2):
 		self.set_cell(worksheet, worksheet.cell(row=row, column=1), sigma_v, False, None)
