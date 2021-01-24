@@ -163,7 +163,7 @@ class ExcelUtility:
 	def write_statistics(self):
 		stats_sheet = self.workbook.create_sheet("Statistics")
 		
-		self.set_cell(stats_sheet, stats_sheet["A1"], "Portfolio Statistics", True, None)
+		self.set_cell(stats_sheet, stats_sheet["A1"], "Portfolio Statistics", True, self.yellow_background)
 
 		# daily statistics
 		start_row = 2
@@ -180,7 +180,7 @@ class ExcelUtility:
 	def write_mvp(self):
 		mvp_sheet = self.workbook.create_sheet("MVP")
 		
-		self.set_cell(mvp_sheet, mvp_sheet["A1"], "Minimum Variance Portfolio", True, None)
+		self.set_cell(mvp_sheet, mvp_sheet["A1"], "Minimum Variance Portfolio", True, self.yellow_background)
 
 		# daily minimum variance portfolio
 		start_row = 2
@@ -197,7 +197,7 @@ class ExcelUtility:
 	def write_mvl(self):
 		mvl_sheet = self.workbook.create_sheet("MVL")
 
-		self.set_cell(mvl_sheet, mvl_sheet["A1"], "Minimum Variance Line - Monthly", True, None)
+		self.set_cell(mvl_sheet, mvl_sheet["A1"], "Minimum Variance Line - Monthly", True, self.yellow_background)
 		
 		self.set_cell(mvl_sheet, mvl_sheet["A2"], "Standard Deviation", False, None)
 		mvl_sheet["A2"].border = styles.borders.Border(bottom=styles.borders.Side(style="thin"))
