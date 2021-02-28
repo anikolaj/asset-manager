@@ -14,8 +14,10 @@ def compute_covariance_with_correlation_coefficient(x_data, y_data, x_stdev, y_s
 		else:
 			y_data = y_data[diff : y_len]
 	
-	rho, p_val = pearsonr(x_data, y_data)
-	covariance = rho * x_stdev * y_stdev
+	covariance = None
+	if len(x_data) > 1:
+		rho, p_val = pearsonr(x_data, y_data)
+		covariance = rho * x_stdev * y_stdev
 	
 	return covariance
 
@@ -26,8 +28,12 @@ def calculate_expected_value(X, p):
 
 def calculate_variance(C, p):
 	p_t = np.transpose(p)
-	variance = p @ C @ p_t
-	variance = round(variance.item(), 8)
+	
+	variance = None
+	if C.size != 0:
+		variance = p @ C @ p_t
+		variance = round(variance.item(), 8)
+	
 	return variance
 
 def solve_quadratic_formula(a, b, c):

@@ -84,9 +84,11 @@ class ExcelUtility:
 		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=1), "Portfolio Summary", True, None)
 		
 		# column headers
-		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=3), "Daily", True, None)
-		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=4), "Weekly", True, None)
-		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=5), "Monthly", True, None)
+		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=3), "Monthly (1M)", True, None)
+		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=4), "Quarterly (1Q)", True, None)
+		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=5), "Biannually (2Q)", True, None)
+		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=6), "Yearly (1Y)", True, None)
+		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=7), "5-Year (5Y)", True, None)
 
 		current_row += 1
 
@@ -94,10 +96,10 @@ class ExcelUtility:
 		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=2), "Expected Return", False, None)
 
 		start_column = 3
-		for time in ["Daily", "Weekly", "Monthly"]:
+		for time in ["1M", "1Q", "2Q", "1Y", "5Y"]:
 			expected_return = self.portfolio_analyzer.expected_return[time]
 			self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=start_column), expected_return, False, None)
-			if time == "Monthly":
+			if time == "1Y":
 				self.monthly_expected_return_row = current_row
 				self.monthly_expected_return_column = start_column
 
@@ -109,10 +111,10 @@ class ExcelUtility:
 		self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=2), "Standard Deviation", False, None)
 
 		start_column = 3
-		for time in ["Daily", "Weekly", "Monthly"]:
+		for time in ["1M", "1Q", "2Q", "1Y", "5Y"]:
 			standard_deviation = self.portfolio_analyzer.standard_deviation[time]
 			self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=start_column), standard_deviation, False, None)
-			if time == "Monthly":
+			if time == "1Y":
 				self.monthly_standard_deviation_row = current_row
 				self.monthly_standard_deviation_column = start_column
 
@@ -165,34 +167,50 @@ class ExcelUtility:
 		
 		self.set_cell(stats_sheet, stats_sheet["A1"], "Portfolio Statistics", True, self.yellow_background)
 
-		# daily statistics
-		start_row = 2
-		self.write_time_statistics(stats_sheet, start_row, "Daily")
-		
-		# weekly statistics
-		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-		self.write_time_statistics(stats_sheet, start_row, "Weekly")
-		
 		# monthly statistics
+		start_row = 2
+		self.write_time_statistics(stats_sheet, start_row, "1M")
+		
+		# quarterly statistics
 		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-		self.write_time_statistics(stats_sheet, start_row, "Monthly")
+		self.write_time_statistics(stats_sheet, start_row, "1Q")
+		
+		# biannual statistics
+		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
+		self.write_time_statistics(stats_sheet, start_row, "2Q")
+
+		# yearly statistics
+		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
+		self.write_time_statistics(stats_sheet, start_row, "1Y")
+
+		# 5 year statistics
+		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
+		self.write_time_statistics(stats_sheet, start_row, "5Y")
 	
 	def write_mvp(self):
 		mvp_sheet = self.workbook.create_sheet("MVP")
 		
 		self.set_cell(mvp_sheet, mvp_sheet["A1"], "Minimum Variance Portfolio", True, self.yellow_background)
 
-		# daily minimum variance portfolio
-		start_row = 2
-		self.write_time_mvp(mvp_sheet, start_row, "Daily")
-		
-		# weekly minimum variance portfolio
-		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-		self.write_time_mvp(mvp_sheet, start_row, "Weekly")
-		
 		# monthly minimum variance portfolio
+		start_row = 2
+		self.write_time_mvp(mvp_sheet, start_row, "1M")
+		
+		# quarterly minimum variance portfolio
 		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-		self.write_time_mvp(mvp_sheet, start_row, "Monthly")
+		self.write_time_mvp(mvp_sheet, start_row, "1Q")
+		
+		# biannual minimum variance portfolio
+		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
+		self.write_time_mvp(mvp_sheet, start_row, "2Q")
+
+		# yearly minimum variance portfolio
+		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
+		self.write_time_mvp(mvp_sheet, start_row, "1Y")
+
+		# 5 year minimum variance portfolio
+		start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
+		self.write_time_mvp(mvp_sheet, start_row, "5Y")
 
 	def write_mvl(self):
 		mvl_sheet = self.workbook.create_sheet("MVL")
@@ -208,7 +226,7 @@ class ExcelUtility:
 		self.set_cell(mvl_sheet, mvl_sheet["C2"], "Inefficient Expected Return", False, None)
 		mvl_sheet["C2"].border = styles.borders.Border(bottom=styles.borders.Side(style="thin"))
 
-		self.write_time_mvl(mvl_sheet, 3, "Monthly")
+		self.write_time_mvl(mvl_sheet, 3, "1Y")
 	
 	def resize_column(self, worksheet, row, column):
 		column_str = utils.get_column_letter(column)
@@ -247,6 +265,10 @@ class ExcelUtility:
 			ticker_row += 1
 
 	def write_correlation_matrix(self, worksheet, current_row, time_interval):
+		if self.portfolio_analyzer.C[time_interval].size == 0:
+			current_row += len(self.portfolio_analyzer.portfolio.equities)
+			return
+		
 		start_column = 7
 		current_column = start_column
 		
@@ -293,6 +315,10 @@ class ExcelUtility:
 		self.write_ticker_mvp(worksheet, current_row, time_interval)
 
 	def write_ticker_mvp(self, worksheet, current_row, time_interval):
+		if len(self.portfolio_analyzer.mvp[time_interval]) == 0:
+			self.set_cell(worksheet, worksheet.cell(row=current_row, column=3), "Not Applied", True, None)
+			return
+		
 		self.set_cell(worksheet, worksheet.cell(row=current_row, column=3), "Ticker", True, None)
 		self.set_cell(worksheet, worksheet.cell(row=current_row, column=4), "Weight", True, None)
 		self.set_cell(worksheet, worksheet.cell(row=current_row, column=5), "Shares", True, None)

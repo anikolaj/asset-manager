@@ -52,13 +52,11 @@ class PortfolioAnalyzer:
 		for eq in self.portfolio.equities:
 			eq.price = equity_service.get_equity_price(eq)
 			
-			daily_equity_details = equity_service.update_equity_details(eq, "Daily")
-			weekly_equity_details = equity_service.update_equity_details(eq, "Weekly")
-			monthly_equity_details = equity_service.update_equity_details(eq, "Monthly")
-			
-			self.ticker_to_timeseries[eq.ticker]["Daily"] = daily_equity_details
-			self.ticker_to_timeseries[eq.ticker]["Weekly"] = weekly_equity_details
-			self.ticker_to_timeseries[eq.ticker]["Monthly"] = monthly_equity_details
+			self.ticker_to_timeseries[eq.ticker]["1M"] = equity_service.update_equity_details(eq, "1M")
+			self.ticker_to_timeseries[eq.ticker]["1Q"] = equity_service.update_equity_details(eq, "1Q")
+			self.ticker_to_timeseries[eq.ticker]["2Q"] = equity_service.update_equity_details(eq, "2Q")
+			self.ticker_to_timeseries[eq.ticker]["1Y"] = equity_service.update_equity_details(eq, "1Y")
+			self.ticker_to_timeseries[eq.ticker]["5Y"] = equity_service.update_equity_details(eq, "5Y")
 	
 	# method computes the total value of all assets in the portfolio
 	def compute_total_value(self):
@@ -92,6 +90,7 @@ class PortfolioAnalyzer:
 			portfolio_returns_daily.append(daily_return)
 
 			row_covariances = []
+			no_covariance = False
 			for other_equity in self.portfolio.equities:
 				if equity.ticker == other_equity.ticker:
 					row_covariances.append(1)
@@ -100,9 +99,17 @@ class PortfolioAnalyzer:
 					other_risk = self.ticker_to_timeseries[other_equity.ticker][time_interval].std_dev
 					
 					covariance = mf.compute_covariance_with_correlation_coefficient(daily_returns, other_returns, daily_risk, other_risk)
+					if covariance == None:
+						no_covariance = True
+						break
 					
 					row_covariances.append(covariance)
 		
+			# check if we could not compute covariance for any entry in the array
+			if no_covariance == True:
+				covariances = []
+				break
+			
 			covariances.append(row_covariances)
 		
 		self.W[time_interval] = np.array(weights)
@@ -119,12 +126,15 @@ class PortfolioAnalyzer:
 		
 	# method computes the variances of the equities
 	def compute_variance(self, time_interval):
-		variance = 0.0
-		std_dev = 0.0
+		variance = None
+		std_dev = None
+
+		print(self.C[time_interval])
 		
 		if len(self.W[time_interval]) != 0:
 			variance = mf.calculate_variance(self.C[time_interval], self.W[time_interval])
-			std_dev = round(math.sqrt(variance), 8)
+			if variance is not None:
+				std_dev = round(math.sqrt(variance), 8)
 
 		self.variance[time_interval] = variance
 		self.standard_deviation[time_interval] = std_dev
@@ -133,7 +143,7 @@ class PortfolioAnalyzer:
 	def compute_minimum_variance_portfolio(self, time_interval):
 		mvp = []
 		
-		if len(self.portfolio.equities) != 0:
+		if len(self.portfolio.equities) != 0 and self.C[time_interval].size != 0:
 			u = np.ones(len(self.portfolio.equities))
 			u_t = np.transpose(u)
 			C_inv = np.linalg.inv(self.C[time_interval])
@@ -165,6 +175,9 @@ class PortfolioAnalyzer:
 
 	# method computes the parameters that describe the minimum variance line for the assets
 	def compute_minimum_variance_line(self, time_interval):
+		if self.C[time_interval].size == 0:
+			return
+		
 		u = np.ones(len(self.portfolio.equities))
 		u_t = np.transpose(u)
 		M_t = np.transpose(self.M[time_interval])

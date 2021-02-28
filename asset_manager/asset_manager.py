@@ -89,8 +89,8 @@ def analyze(portfolio_analyzer):
 	
 	# compute portfolio total value
 	portfolio_analyzer.compute_total_value()
-	
-	for time_interval in ["Daily", "Weekly", "Monthly"]:
+
+	for time_interval in ["1M", "1Q", "2Q", "1Y", "5Y"]:
 		# compute features w, m, and C
 		portfolio_analyzer.compute_features(time_interval)
 		
