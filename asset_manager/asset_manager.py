@@ -39,15 +39,26 @@ def main():
 			portfolio_analyzer.compute_variance(time_interval)
 	
 	# purchase new assets
-	purchase_equity = input("would you like to order new equity (y/n) = ")
-	while purchase_equity == "y":
-		ticker = input("enter ticker = ")
-		shares = input("number of shares = ")
+	buy_stock = input("BUY EQUITY (y/n) = ")
+	while buy_stock == "y":
+		ticker = input("TICKER = ")
+		shares = input("SHARES = ")
 		
-		portfolio_analyzer.add_equity_to_portfolio(ticker, shares)
+		portfolio_analyzer.buy_equity(ticker, shares)
 		analyze(portfolio_analyzer)
 
-		purchase_equity = input("would you like to order another equity (y/n) = ")
+		buy_stock = input("BUY EQUITY (y/n) = ")
+
+	# sell existing assets
+	sell_stock = input("SELL EQUITY (y/n) = ")
+	while sell_stock == "y":
+		ticker = input("TICKER = ")
+		shares = input("SHARES = ")
+		
+		portfolio_analyzer.sell_equity(ticker, shares)
+		analyze(portfolio_analyzer)
+
+		sell_stock = input("SELL EQUITY (y/n) = ")
 
 	# write results to excel workbook
 	generate_excel = input("write results to excel workbook (y/n) = ")

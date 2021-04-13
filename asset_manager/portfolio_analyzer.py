@@ -33,7 +33,7 @@ class PortfolioAnalyzer:
 		self.mvl_c = {}
 	
 	# method handles adding equity in the portfolio and database
-	def add_equity_to_portfolio(self, ticker, shares):
+	def buy_equity(self, ticker, shares):
 		new_equity = Equity(ticker=ticker, shares=shares, weight=0, price=0)
 		
 		self.portfolio.equities.append(new_equity)
@@ -42,6 +42,22 @@ class PortfolioAnalyzer:
 		self.ticker_to_timeseries[ticker] = {}
 
 		print("successfully added " + ticker + " to portfolio = " + str(self.portfolio.name))
+
+	# method handles removing equity from the portfolio and database
+	def sell_equity(self, ticker, str_shares):
+		sell_shares = 0
+		if str_shares != "ALL":
+			sell_shares = float(str_shares)
+		
+		ticker_present = False
+		for equity in self.portfolio.equities:
+			if equity.ticker == ticker:
+				if str_shares == "ALL" or sell_shares >= equity.shares:
+					self.portfolio.equities.remove(equity)
+				else:
+					equity.shares = equity.shares - sell_shares
+
+				self.portfolio.save()
 
 	# method handles updating equity information
 	def update_equities(self):
