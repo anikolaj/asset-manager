@@ -53,3 +53,10 @@ documents
 	- futures
 	- cash
 	- foreign exchange
+
+PORTFOLIO COMMANDS
+- REWEIGHT [TIME INTERVAL]
+- BUY [ASSET] [SHARES]
+- SELL [ASSET] [SHARES]
+- EXCEL
+- HELP

@@ -6,8 +6,9 @@ from sqlalchemy.orm import sessionmaker
 
 import asset_manager.database as db
 import asset_manager.equity_service as equity_service
+import asset_manager.cli as cli
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
-from asset_manager.excel_utility import ExcelUtility
+from asset_manager.cli import cli
 from asset_manager.entities import *
 
 # application launch point
@@ -27,44 +28,11 @@ def main():
 		print(eq.ticker + " - " + str(eq.price))
 	
 	# analyze the portfolio of assets
-	analyze(portfolio_analyzer)
-	
-	# reweight portfolio to mvp
-	if len(p.equities) != 0:
-		reweight = input("would you like to reweight based on minimum variance portfolio (y/n) = ")
-		if reweight == "y":
-			time_interval = input("what time interval for reweight (Daily, Weekly, Monthly) = ")
-			portfolio_analyzer.reweight_to_mvp(time_interval)
-			portfolio_analyzer.compute_expected_return(time_interval)
-			portfolio_analyzer.compute_variance(time_interval)
-	
-	# purchase new assets
-	buy_stock = input("BUY EQUITY (y/n) = ")
-	while buy_stock == "y":
-		ticker = input("TICKER = ")
-		shares = input("SHARES = ")
-		
-		portfolio_analyzer.buy_equity(ticker, shares)
-		analyze(portfolio_analyzer)
+	portfolio_analyzer.analyze()
 
-		buy_stock = input("BUY EQUITY (y/n) = ")
-
-	# sell existing assets
-	sell_stock = input("SELL EQUITY (y/n) = ")
-	while sell_stock == "y":
-		ticker = input("TICKER = ")
-		shares = input("SHARES = ")
-		
-		portfolio_analyzer.sell_equity(ticker, shares)
-		analyze(portfolio_analyzer)
-
-		sell_stock = input("SELL EQUITY (y/n) = ")
-
-	# write results to excel workbook
-	generate_excel = input("write results to excel workbook (y/n) = ")
-	if generate_excel == "y":
-		excel_utility = ExcelUtility(portfolio_analyzer)
-		excel_utility.generate_portfolio_workbook()
+	# add call to method to prompt CLI for executing portfolio commands
+	portfolio_prompt = cli(portfolio_analyzer)
+	portfolio_prompt.run_prompt()
 
 # import credentials to connect to external services
 def configure_services():

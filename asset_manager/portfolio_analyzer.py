@@ -59,6 +59,26 @@ class PortfolioAnalyzer:
 
 				self.portfolio.save()
 
+	# method handles analyzing portoflio to calculate necessary metrics and feature vectors
+	def analyze(self):
+		# retrieve asset information
+		self.update_equities()
+	
+		# compute portfolio total value
+		self.compute_total_value()
+
+		for time_interval in ["1M", "1Q", "2Q", "1Y", "5Y"]:
+			# compute features w, m, and C
+			self.compute_features(time_interval)
+		
+			# compute expected return, variance, and minimum variance portfolios
+			self.compute_expected_return(time_interval)
+			self.compute_variance(time_interval)
+			self.compute_minimum_variance_portfolio(time_interval)
+
+			# compute the minimum variance line
+			self.compute_minimum_variance_line(time_interval)
+
 	# method handles updating equity information
 	def update_equities(self):
 		if self.portfolio.equities is None:
