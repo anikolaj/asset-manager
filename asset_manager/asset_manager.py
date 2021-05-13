@@ -60,35 +60,3 @@ def retrieve_portfolio():
 	print("portfolio id = " + str(p.id))
 
 	return p
-
-# run analysis on portfolio details
-def analyze(portfolio_analyzer):
-	# retrieve asset information
-	portfolio_analyzer.update_equities()
-	
-	# compute portfolio total value
-	portfolio_analyzer.compute_total_value()
-
-	for time_interval in ["1M", "1Q", "2Q", "1Y", "5Y"]:
-		# compute features w, m, and C
-		portfolio_analyzer.compute_features(time_interval)
-		
-		# compute expected return, variance, and minimum variance portfolios
-		portfolio_analyzer.compute_expected_return(time_interval)
-		portfolio_analyzer.compute_variance(time_interval)
-		portfolio_analyzer.compute_minimum_variance_portfolio(time_interval)
-
-		# compute the minimum variance line
-		portfolio_analyzer.compute_minimum_variance_line(time_interval)
-	
-	print("---- PORTFOLIO EXPECTED RETURN ----")
-	expected_returns = json.dumps(portfolio_analyzer.expected_return, indent=2)
-	print(expected_returns)
-	
-	print("---- PORTFOLIO STANDARD DEVIATION ----")
-	standard_deviations = json.dumps(portfolio_analyzer.standard_deviation, indent=2)
-	print(standard_deviations)
-	
-	print("---- MINIMUM VARIANCE PORTFOLIOS ----")
-	mvps = json.dumps(portfolio_analyzer.mvp, indent=2)
-	print(mvps)
