@@ -6,7 +6,9 @@ from sqlalchemy.orm import sessionmaker
 
 import asset_manager.database as db
 import asset_manager.equity_service as equity_service
+import asset_manager.treasury_service as treasury_service
 import asset_manager.cli as cli
+import asset_manager.rates as rates
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 from asset_manager.cli import cli
 from asset_manager.entities import *
@@ -20,16 +22,19 @@ def main():
 	p = retrieve_portfolio()
 	if p is None: return
 	
-	# update assets in portfolio with current
+	# retrieve treasury rates
+	treasury_service.get_all_treasury_rates()
+	
+	# construct portfolio analyzer and update details
 	portfolio_analyzer = PortfolioAnalyzer(p)
-	
-	print("CURRENT EQUITIES IN PORTFOLIO")
-	for eq in p.equities:
-		print(eq.ticker + " - " + str(eq.price))
-	
-	# analyze the portfolio of assets
 	portfolio_analyzer.analyze()
-
+	
+	# output equities
+	log_equities(p)
+	
+	# output treasury rates
+	log_treasuries()
+	
 	# add call to method to prompt CLI for executing portfolio commands
 	portfolio_prompt = cli(portfolio_analyzer)
 	portfolio_prompt.run_prompt()
@@ -42,6 +47,7 @@ def configure_services():
 	
 	db.open_connection(config)
 	equity_service.set_api_key(config)
+	treasury_service.set_api_key(config)
 
 # get portfolio or create a new one
 def retrieve_portfolio():
@@ -60,3 +66,21 @@ def retrieve_portfolio():
 	print("portfolio id = " + str(p.id))
 
 	return p
+
+# method handles logging equities in the specified portfolio
+def log_equities(p):
+	print("CURRENT EQUITIES IN PORTFOLIO")
+	for eq in p.equities:
+		print(eq.ticker + " - " + str(eq.price))
+
+	print("")
+
+# method handles logging treasury rates
+def log_treasuries():
+	print("CURRENT TREASURY RATES")
+	print("US 5 Year = " + str(rates.UST5Y))
+	print("US 1 Year = " + str(rates.UST1Y))
+	print("US 6 Month = " + str(rates.UST6MO))
+	print("US 3 Month = " + str(rates.UST3MO))
+	print("US 1 Month = " + str(rates.UST1MO))
+	print("")
