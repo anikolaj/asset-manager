@@ -92,3 +92,6 @@ ENV/
 # Project specific
 *.xlsx
 asset_manager/data/**/*.json
+
+# VS Code
+.vscode/**

@@ -16,6 +16,7 @@ from asset_manager.entities import *
 # application launch point
 def main():
 	print("launching asset manager")
+	print("")
 	configure_services()
 	
 	# get portfolio specified on command line
@@ -63,24 +64,26 @@ def retrieve_portfolio():
 			print("....exiting application")
 			return
 	
-	print("portfolio id = " + str(p.id))
+	print("PORTFOLIO ID - " + str(p.id))
 
 	return p
 
 # method handles logging equities in the specified portfolio
 def log_equities(p):
-	print("CURRENT EQUITIES IN PORTFOLIO")
+	print("- EQUITIES")
+	print("ticker" + "\t" + "price" + "\t" + "shares")
 	for eq in p.equities:
-		print(eq.ticker + " - " + str(eq.price))
+		print(eq.ticker + "\t" + str(eq.price) + "\t" + str(eq.shares))
 
 	print("")
 
 # method handles logging treasury rates
 def log_treasuries():
-	print("CURRENT TREASURY RATES")
-	print("US 5 Year = " + str(rates.UST5Y))
-	print("US 1 Year = " + str(rates.UST1Y))
-	print("US 6 Month = " + str(rates.UST6MO))
-	print("US 3 Month = " + str(rates.UST3MO))
-	print("US 1 Month = " + str(rates.UST1MO))
+	print("- TREASURY RATES")
+	print("symbol" + "\t\t" + "rate")
+	print("US 5 Year" + "\t" + str(rates.UST5Y) + "%")
+	print("US 1 Year" + "\t" + str(rates.UST1Y) + "%")
+	print("US 6 Month" + "\t" + str(rates.UST6MO) + "%")
+	print("US 3 Month" + "\t" + str(rates.UST3MO) + "%")
+	print("US 1 Month" + "\t" + str(rates.UST1MO) + "%")
 	print("")

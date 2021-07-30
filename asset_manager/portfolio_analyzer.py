@@ -101,14 +101,15 @@ class PortfolioAnalyzer:
 			total_value += (equity.shares * equity.price)
 	
 		total_value = round(total_value, 8)
-		print("total portfolio value = " + str(total_value))
+		print("PORTFOLIO VALUE = " + str(total_value))
+		print("")
 		
 		self.portfolio.value = total_value
 		self.portfolio.save()
 	
 	# method calculates the feature vectors used to describe the portfolio
 	def compute_features(self, time_interval):
-		print("TIME INTERVAL - " + time_interval)
+		# print("TIME INTERVAL - " + time_interval)
 		
 		weights = []
 		portfolio_returns_daily = []
@@ -120,7 +121,7 @@ class PortfolioAnalyzer:
 			daily_risk = self.ticker_to_timeseries[equity.ticker][time_interval].std_dev
 			
 			equity.weight = (equity.shares * equity.price) / self.portfolio.value
-			print(equity.ticker + " weight = " + str(equity.weight))
+			# print(equity.ticker + " weight = " + str(equity.weight))
 
 			weights.append(equity.weight)
 			portfolio_returns_daily.append(daily_return)
@@ -152,9 +153,9 @@ class PortfolioAnalyzer:
 		self.M[time_interval] = np.array(portfolio_returns_daily)
 		self.C[time_interval] = np.array(covariances)
 		
-		print("w array = " + str(self.W[time_interval]))
-		print("m array = " + str(self.M[time_interval]))
-		print("c matrix = " + str(self.C[time_interval]))
+		# print("w array = " + str(self.W[time_interval]))
+		# print("m array = " + str(self.M[time_interval]))
+		# print("c matrix = " + str(self.C[time_interval]))
 	
 	# method computes the expected return of the equities
 	def compute_expected_return(self, time_interval):
@@ -165,8 +166,6 @@ class PortfolioAnalyzer:
 		variance = None
 		std_dev = None
 
-		print(self.C[time_interval])
-		
 		if len(self.W[time_interval]) != 0:
 			variance = mf.calculate_variance(self.C[time_interval], self.W[time_interval])
 			if variance is not None:
@@ -229,11 +228,11 @@ class PortfolioAnalyzer:
 		self.a[time_interval] = (((c_bar * self.M[time_interval]) - (a_bar * u)) @ C_inv) / denom
 		self.b[time_interval] = (((b_bar * u) - (a_bar * self.M[time_interval])) @ C_inv) / denom
 
-		print("a parameter")
-		print(self.a[time_interval])
-		print("")
-		print("b parameter")
-		print(self.b[time_interval])
+		# print("a parameter")
+		# print(self.a[time_interval])
+		# print("")
+		# print("b parameter")
+		# print(self.b[time_interval])
 
 		# sigma_v = sqrt(aCa^T * m_v^2 + 2*aCb^T*m_v + bCb^T)
 		a_t = np.transpose(self.a[time_interval])

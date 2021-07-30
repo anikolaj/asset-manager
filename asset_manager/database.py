@@ -16,7 +16,7 @@ def open_connection(config):
 # method handles checking if portfolio exists in database
 def get_portfolio_by_name(portfolio_name):
 	portfolio_entity = None
-	print("checking for portfolio - " + portfolio_name)
+	# print("checking for portfolio - " + portfolio_name)
 	
 	portfolio_entities = Portfolio.objects(name=portfolio_name)
 	if len(portfolio_entities) > 0:
