@@ -1,4 +1,4 @@
-from mongoengine import *
+from mongoengine import connect
 
 from asset_manager.entities import *
 

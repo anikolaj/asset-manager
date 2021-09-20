@@ -1,6 +1,6 @@
 import os
 import math
-from openpyxl import *
+from openpyxl import styles, Workbook, utils, chart
 
 import asset_manager.math_functions as mf
 

@@ -41,7 +41,7 @@ class PortfolioAnalyzer:
 
 		self.ticker_to_timeseries[ticker] = {}
 
-		print("successfully added " + ticker + " to portfolio = " + str(self.portfolio.name))
+		print(f"successfully added {ticker} to portfolio = {self.portfolio.name}")
 
 	# method handles removing equity from the portfolio and database
 	def sell_equity(self, ticker, str_shares):
@@ -101,7 +101,7 @@ class PortfolioAnalyzer:
 			total_value += (equity.shares * equity.price)
 	
 		total_value = round(total_value, 8)
-		print("PORTFOLIO VALUE = " + str(total_value))
+		print(f"PORTFOLIO VALUE = {total_value}")
 		print("")
 		
 		self.portfolio.value = total_value
@@ -205,8 +205,8 @@ class PortfolioAnalyzer:
 			self.portfolio.equities[i].shares = (new_weight * self.portfolio.value) / self.portfolio.equities[i].price
 			self.portfolio.save()
 			
-			print(self.portfolio.equities[i].ticker + " new share amount = " + str(self.portfolio.equities[i].shares))
-			print(self.portfolio.equities[i].ticker + " change in value = " + str(value_change))
+			print(f"{self.portfolio.equities[i].ticker} new share amount = {self.portfolio.equities[i].shares}")
+			print(f"{self.portfolio.equities[i].ticker} change in value = {value_change}")
 
 	# method computes the parameters that describe the minimum variance line for the assets
 	def compute_minimum_variance_line(self, time_interval):

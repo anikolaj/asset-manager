@@ -57,14 +57,14 @@ def retrieve_portfolio():
 	
 	# validate if portfolio exists and create new one if desired
 	if p is None:
-		create_new = input(portfolio_name + " does not exist. Would you like to create one with this name (y/n) = ")
+		create_new = input(f"{portfolio_name} does not exist. Would you like to create one with this name (y/n) = ")
 		if create_new == "y":
 			p = db.create_portfolio(portfolio_name)
 		else:
 			print("....exiting application")
 			return
 	
-	print("PORTFOLIO ID - " + str(p.id))
+	print(f"PORTFOLIO ID - {p.id}")
 
 	return p
 

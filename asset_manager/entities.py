@@ -1,4 +1,5 @@
-from mongoengine import *
+from mongoengine import StringField, FloatField, ListField, EmbeddedDocumentField
+from mongoengine import Document, EmbeddedDocument
 
 class Equity(EmbeddedDocument):
 	ticker = StringField(required=True)
