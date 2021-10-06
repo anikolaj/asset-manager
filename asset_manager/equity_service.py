@@ -23,6 +23,17 @@ def get_equity_price(eq):
 	quote = requests.get(api_string).json()
 	return quote["c"]
 
+# method retrieves the year start price for the equity
+def get_equity_year_start_price(eq):
+	first_trading_day = get_first_trading_day_of_year()
+	unix_time = first_trading_day.strftime("%s")
+	
+	api_string = STOCK_DATA.format(eq.ticker, "D", unix_time, unix_time, FINNHUB_KEY)
+	response = requests.get(api_string).json()
+	
+	# need to handle case when first trading day of the year does not have quote for given equity
+	return response["c"][0]
+
 # method computes average daily return for the equity
 def update_equity_details(eq, time_interval):
 	today = date.today()
@@ -109,3 +120,26 @@ def calculate_time_series_details(time_series):
 		stdev = statistics.stdev(returns)
 	
 	return TimeSeriesDetails(returns, gmean(percent_changes)-1, stdev)
+
+def get_first_trading_day_of_year():
+	global_data = {}
+	with open("asset_manager/global_data.json", "r") as data_file:
+		global_data = json.load(data_file)
+
+	first_trading_day = date.fromisoformat(global_data["firstTradingDay"])
+	today_date = date.today()
+
+	# below condition is for new year when we need to recalculate the first trading day
+	if first_trading_day.year != today_date.year:
+		d = date(today_date.year, 1, 2)
+
+		while d.weekday() == 5 or d.weekday() == 6:
+			d += timedelta(days=1)
+
+		first_trading_day = d
+		global_data["firstTradingDay"] = first_trading_day.isoformat()
+		
+		with open("asset_manager/global_data.json", "w") as data_file:
+			json.dump(global_data, data_file)
+
+	return first_trading_day

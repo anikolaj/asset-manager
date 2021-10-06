@@ -1,3 +1,4 @@
+from datetime import date
 import math
 import numpy as np
 
@@ -65,7 +66,7 @@ class PortfolioAnalyzer:
 		self.update_equities()
 	
 		# compute portfolio total value
-		self.compute_total_value()
+		self.update_valuation()
 
 		for time_interval in ["1M", "1Q", "2Q", "1Y", "5Y"]:
 			# compute features w, m, and C
@@ -87,12 +88,28 @@ class PortfolioAnalyzer:
 		# equity daily details
 		for eq in self.portfolio.equities:
 			eq.price = equity_service.get_equity_price(eq)
+			if eq.yearStartPrice == None:
+				eq.yearStartPrice = equity_service.get_equity_year_start_price(eq)
 			
 			self.ticker_to_timeseries[eq.ticker]["1M"] = equity_service.update_equity_details(eq, "1M")
 			self.ticker_to_timeseries[eq.ticker]["1Q"] = equity_service.update_equity_details(eq, "1Q")
 			self.ticker_to_timeseries[eq.ticker]["2Q"] = equity_service.update_equity_details(eq, "2Q")
 			self.ticker_to_timeseries[eq.ticker]["1Y"] = equity_service.update_equity_details(eq, "1Y")
 			self.ticker_to_timeseries[eq.ticker]["5Y"] = equity_service.update_equity_details(eq, "5Y")
+	
+	# method handles updating the valuation fields for the retrieved portfolio
+	def update_valuation(self):
+		current_year = date.today().year
+		if self.portfolio.valuation == None:
+			self.portfolio.valuation = Valuation(currentYear=current_year)
+		else:
+			if self.portfolio.valuation.currentYear != current_year:
+				self.portfolio.valuation.currentYear = current_year
+		
+		
+		# calculate valuation at first of year for the contained assets
+		self.compute_total_value()
+		# update YTD for the portfolio
 	
 	# method computes the total value of all assets in the portfolio
 	def compute_total_value(self):
