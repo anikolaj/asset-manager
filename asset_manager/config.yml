@@ -6,3 +6,6 @@ mongodb:
 
 finnhub:
   key: "KEY"
+
+iex:
+  key: "KEY"
