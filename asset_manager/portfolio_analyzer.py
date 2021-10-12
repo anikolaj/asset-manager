@@ -87,15 +87,19 @@ class PortfolioAnalyzer:
 
 		# equity daily details
 		for eq in self.portfolio.equities:
+			# get current stock price
 			eq.price = equity_service.get_equity_price(eq)
-			if eq.yearStartPrice == None:
-				eq.yearStartPrice = equity_service.get_equity_year_start_price(eq)
 			
+			# retrieve time interval prices for the stock
 			self.ticker_to_timeseries[eq.ticker]["1M"] = equity_service.update_equity_details(eq, "1M")
 			self.ticker_to_timeseries[eq.ticker]["1Q"] = equity_service.update_equity_details(eq, "1Q")
 			self.ticker_to_timeseries[eq.ticker]["2Q"] = equity_service.update_equity_details(eq, "2Q")
 			self.ticker_to_timeseries[eq.ticker]["1Y"] = equity_service.update_equity_details(eq, "1Y")
 			self.ticker_to_timeseries[eq.ticker]["5Y"] = equity_service.update_equity_details(eq, "5Y")
+
+			# get the year start price of the stock
+			if eq.yearStartPrice == None:
+				eq.yearStartPrice = equity_service.get_equity_year_start_price(eq)
 	
 	# method handles updating the valuation fields for the retrieved portfolio
 	def update_valuation(self):

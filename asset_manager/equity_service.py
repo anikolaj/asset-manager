@@ -25,6 +25,19 @@ def get_equity_price(eq):
 
 # method retrieves the year start price for the equity
 def get_equity_year_start_price(eq):
+	print(f"getting year start price - {eq.ticker}")
+	
+	# check if year start already exists for the given ticker
+	year_start_file = os.getcwd() + "/asset_manager/data/equity/{}/year_start.json"
+	year_start_file = year_start_file.format(eq.ticker)
+
+	year_start_data = {}
+	if os.path.exists(year_start_file):
+		with open(year_start_file, "r") as data_file:
+			year_start_data = json.load(data_file)
+
+		return year_start_data["yearStartPrice"]
+	
 	first_trading_day = get_first_trading_day_of_year()
 	unix_time = first_trading_day.strftime("%s")
 	
@@ -32,7 +45,18 @@ def get_equity_year_start_price(eq):
 	response = requests.get(api_string).json()
 	
 	# need to handle case when first trading day of the year does not have quote for given equity
-	return response["c"][0]
+	if len(response["c"]) == 0:
+		year_start_price = float(input("ERROR retrieving year strice price, please manually enter = "))
+	else:
+		year_start_price = response["c"][0]
+	
+	# save year start price for ticker to the data folder
+	year_start_data["yearStartPrice"] = year_start_price
+
+	with open(year_start_file, "w") as data_file:
+		json.dump(year_start_data, data_file)
+	
+	return year_start_price
 
 # method computes average daily return for the equity
 def update_equity_details(eq, time_interval):
