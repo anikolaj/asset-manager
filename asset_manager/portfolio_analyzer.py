@@ -116,10 +116,16 @@ class PortfolioAnalyzer:
 			if self.portfolio.valuation.currentYear != current_year:
 				self.portfolio.valuation.currentYear = current_year
 		
-		
-		# calculate valuation at first of year for the contained assets
+		self.compute_year_start_value()
 		self.compute_total_value()
-		# update YTD for the portfolio
+		self.portfolio.valuation.ytd = (self.portfolio.value / self.portfolio.valuation.yearStartValue) - 1
+		self.portfolio.save()
+
+		ytd_percent = round(self.portfolio.valuation.ytd * 100, 2)
+		
+		print(f"PORTFOLIO VALUE = {self.portfolio.value}")
+		print(f"YTD = {ytd_percent}%")
+		print("")
 	
 	# method computes the total value of all assets in the portfolio
 	def compute_total_value(self):
@@ -128,10 +134,19 @@ class PortfolioAnalyzer:
 			total_value += (equity.shares * equity.price)
 	
 		total_value = round(total_value, 8)
-		print(f"PORTFOLIO VALUE = {total_value}")
-		print("")
 		
 		self.portfolio.value = total_value
+		self.portfolio.valuation.currentValue = total_value
+		self.portfolio.save()
+	
+	# method computes the year start value of all assets in the portfolio
+	def compute_year_start_value(self):
+		start_value = 0
+		for equity in self.portfolio.equities:
+			start_value += (equity.shares * equity.yearStartPrice)
+
+		start_value = round(start_value, 8)
+		self.portfolio.valuation.yearStartValue = start_value
 		self.portfolio.save()
 	
 	# method calculates the feature vectors used to describe the portfolio
