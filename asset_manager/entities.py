@@ -8,15 +8,20 @@ class Valuation(EmbeddedDocument):
 	currentValue = FloatField()
 	ytd = FloatField()
 
-class Equity(EmbeddedDocument):
+class EquityHolding(EmbeddedDocument):
 	ticker = StringField(required=True)
 	shares = FloatField(required=True)
 	weight = FloatField(required=True)
 	price = FloatField(required=True)
 	yearStartPrice = FloatField()
 
+class Equity(Document):
+	ticker = StringField(required=True, unique=True)
+	price = FloatField()
+	yearStartPrice = FloatField()
+
 class Portfolio(Document):
 	name = StringField(required=True)
 	value = FloatField(required=True)
-	equities = ListField(EmbeddedDocumentField(Equity))
+	equities = ListField(EmbeddedDocumentField(EquityHolding))
 	valuation = EmbeddedDocumentField(Valuation)
