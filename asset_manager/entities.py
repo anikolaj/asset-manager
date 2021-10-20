@@ -23,5 +23,6 @@ class Equity(Document):
 class Portfolio(Document):
 	name = StringField(required=True)
 	value = FloatField(required=True)
+	cash = FloatField()
 	equities = ListField(EmbeddedDocumentField(EquityHolding))
 	valuation = EmbeddedDocumentField(Valuation)

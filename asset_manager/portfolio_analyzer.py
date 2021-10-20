@@ -35,7 +35,7 @@ class PortfolioAnalyzer:
 	
 	# method handles adding equity in the portfolio and database
 	def buy_equity(self, ticker, shares):
-		new_equity = Equity(ticker=ticker, shares=shares, weight=0, price=0)
+		new_equity = EquityHolding(ticker=ticker, shares=shares, weight=0, price=0)
 		
 		self.portfolio.equities.append(new_equity)
 		self.portfolio.save()
