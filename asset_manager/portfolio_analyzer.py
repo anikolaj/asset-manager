@@ -133,7 +133,7 @@ class PortfolioAnalyzer:
 		for equity in self.portfolio.equities:
 			total_value += (equity.shares * equity.price)
 	
-		total_value = round(total_value, 8)
+		total_value = round(total_value, 2)
 		
 		self.portfolio.value = total_value
 		self.portfolio.valuation.currentValue = total_value

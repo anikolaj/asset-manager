@@ -21,7 +21,7 @@ def set_api_key(config):
 def get_equity_price(eq):
 	api_string = STOCK_QUOTE.format(eq.ticker, FINNHUB_KEY)
 	quote = requests.get(api_string).json()
-	return quote["c"]
+	return round(quote["c"], 2)
 
 # method retrieves the year start price for the equity
 def get_equity_year_start_price(eq):
