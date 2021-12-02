@@ -61,6 +61,11 @@ class PortfolioAnalyzer:
 
 				self.portfolio.save()
 
+	# method handles depositing amount into portfolio cash balance
+	def deposit(self, deposit_amount):
+		self.portfolio.cash += deposit_amount
+		self.portfolio.save()
+
 	# method handles analyzing portoflio to calculate necessary metrics and feature vectors
 	def analyze(self):
 		# retrieve asset information

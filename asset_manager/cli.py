@@ -24,6 +24,8 @@ class cli:
 			self.buy(portfolio_command)
 		elif portfolio_action == "SELL":
 			self.sell(portfolio_command)
+		elif portfolio_action == "DEPOSIT":
+			self.deposit(portfolio_command)
 		elif portfolio_action == "EXPORT":
 			self.export(excel_utility)
 		elif portfolio_action == "EXIT":
@@ -72,6 +74,15 @@ class cli:
 
 		self.portfolio_analyzer.sell_equity(ticker, shares)
 		self.portfolio_analyzer.analyze()
+
+	# ACTION = DEPOSIT
+	def deposit(self, portfolio_command):
+		if len(portfolio_command) == 2:
+			deposit_amount = float(portfolio_command[1])
+			self.portfolio_analyzer.deposit(deposit_amount)
+		else:
+			print("INVALID COMMAND FORMAT - MUST BE \"DEPOSIT [AMOUNT]\"")
+			return
 
 	# ACTION = EXPORT
 	def export(self, excel_utility):
