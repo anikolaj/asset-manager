@@ -29,6 +29,9 @@ def main():
 	# construct portfolio analyzer and update details
 	portfolio_analyzer = PortfolioAnalyzer(p)
 	portfolio_analyzer.analyze()
+
+	# output cash
+	log_cash(p)
 	
 	# output equities
 	log_equities(p)
@@ -67,6 +70,12 @@ def retrieve_portfolio():
 	print(f"PORTFOLIO ID - {p.id}")
 
 	return p
+
+# method handles logging cash balance in the specified portfolio
+def log_cash(p):
+	print("- CASH")
+	print(f"{p.cash} USD")
+	print("")
 
 # method handles logging equities in the specified portfolio
 def log_equities(p):
