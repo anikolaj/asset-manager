@@ -35,8 +35,12 @@ class PortfolioAnalyzer:
 	
 	# method handles adding equity in the portfolio and database
 	def buy_equity(self, ticker, shares):
-		shares = round(shares, 4)
+		shares = round(float(shares), 4)
 		new_equity = EquityHolding(ticker=ticker, shares=shares, weight=0, price=0)
+		price = equity_service.get_equity_price(new_equity)
+
+		if (price * shares) > self.portfolio.cash:
+			raise ValueError("cash balance is too low to purchase this block of assets")
 		
 		self.portfolio.equities.append(new_equity)
 		self.portfolio.save()

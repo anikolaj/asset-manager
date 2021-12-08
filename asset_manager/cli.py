@@ -59,8 +59,12 @@ class cli:
 			print("INVALID COMMAND FORMAT - MUST BE \"BUY [TICKER] [SHARES]\"")
 			return
 
-		self.portfolio_analyzer.buy_equity(ticker, shares)
-		self.portfolio_analyzer.analyze()
+		try:
+			self.portfolio_analyzer.buy_equity(ticker, shares)
+			self.portfolio_analyzer.analyze()
+		except Exception as e:
+			print("Exception occurred while trying to buy asset. Please view below")
+			print(f"EXCEPTION - {e}")
 
 	# ACTION = SELL
 	def sell(self, portfolio_command):
