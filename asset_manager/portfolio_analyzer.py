@@ -43,6 +43,7 @@ class PortfolioAnalyzer:
 			raise ValueError("cash balance is too low to purchase this block of assets")
 		
 		self.portfolio.equities.append(new_equity)
+		self.portfolio.cash = round(self.portfolio.cash - (price * shares), 2)
 		self.portfolio.save()
 
 		self.ticker_to_timeseries[ticker] = {}
@@ -55,14 +56,18 @@ class PortfolioAnalyzer:
 		if str_shares != "ALL":
 			sell_shares = float(str_shares)
 		
-		ticker_present = False
+		sell_amount = 0
 		for equity in self.portfolio.equities:
 			if equity.ticker == ticker:
 				if str_shares == "ALL" or sell_shares >= equity.shares:
+					sell_amount = equity.price * equity.shares
 					self.portfolio.equities.remove(equity)
 				else:
+					sell_amount = equity.price * sell_shares
 					equity.shares = equity.shares - sell_shares
 
+				self.portfolio.cash += round(sell_amount, 2)
+				
 				self.portfolio.save()
 
 	# method handles depositing amount into portfolio cash balance
