@@ -90,6 +90,8 @@ def log_equities(p):
 def log_treasuries():
 	print("- TREASURY RATES")
 	print("symbol" + "\t\t" + "rate")
+	print("US 30 Year" + "\t" + str(rates.UST30Y) + "%")
+	print("US 10 Year" + "\t" + str(rates.UST10Y) + "%")
 	print("US 5 Year" + "\t" + str(rates.UST5Y) + "%")
 	print("US 1 Year" + "\t" + str(rates.UST1Y) + "%")
 	print("US 6 Month" + "\t" + str(rates.UST6MO) + "%")

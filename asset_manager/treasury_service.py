@@ -9,6 +9,8 @@ import asset_manager.rates as rates
 IEX_KEY = ""
 
 # TREASURY SYMBOLS
+DGS30 = "DGS30"
+DGS10 = "DGS10"
 DGS5 = "DGS5"
 DGS1 = "DGS1"
 DGS6MO = "DGS6MO"
@@ -22,6 +24,8 @@ def set_api_key(config):
 
 # method sets all the treasury rates for the app
 def get_all_treasury_rates():
+	rates.UST30Y = get_treasury_rate(DGS30)
+	rates.UST10Y = get_treasury_rate(DGS10)
 	rates.UST5Y = get_treasury_rate(DGS5)
 	rates.UST1Y = get_treasury_rate(DGS1)
 	rates.UST6MO = get_treasury_rate(DGS6MO)
