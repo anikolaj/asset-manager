@@ -44,7 +44,6 @@ def get_treasury_rate(symbol):
 	response = {}
 		
 	if os.path.exists(filename) == False:
-		print("making request to IEX api")
 		api_string = TREASURY_RATE.format(symbol, IEX_KEY)
 		response = requests.get(api_string).json()
 		
