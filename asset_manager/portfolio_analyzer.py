@@ -121,6 +121,7 @@ class PortfolioAnalyzer:
 				equity_details.save()
 
 			eq.yearStartPrice = equity_details.yearStartPrice
+			eq.ytd = (eq.price / eq.yearStartPrice) - 1
 	
 	# method handles updating the valuation fields for the retrieved portfolio
 	def update_valuation(self):

@@ -1,8 +1,5 @@
 import sys
-import json
 import yaml
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 import asset_manager.database as db
 import asset_manager.equity_service as equity_service
@@ -80,9 +77,9 @@ def log_cash(p):
 # method handles logging equities in the specified portfolio
 def log_equities(p):
 	print("- EQUITIES")
-	print("ticker" + "\t" + "price" + "\t" + "shares")
+	print("ticker" + "\t" + "price" + "\t" + "shares" + "\t" + "ytd")
 	for eq in p.equities:
-		print(eq.ticker + "\t" + str(eq.price) + "\t" + str(eq.shares))
+		print(eq.ticker + "\t" + str(eq.price) + "\t" + str(eq.shares) + "\t" + f"{str(round(eq.ytd * 100, 2))}%")
 
 	print("")
 

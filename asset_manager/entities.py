@@ -14,6 +14,7 @@ class EquityHolding(EmbeddedDocument):
 	weight = FloatField(required=True)
 	price = FloatField(required=True)
 	yearStartPrice = FloatField()
+	ytd = FloatField()
 
 class Equity(Document):
 	ticker = StringField(required=True, unique=True)
