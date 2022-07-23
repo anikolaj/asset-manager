@@ -31,12 +31,15 @@ def get_equity_year_start_price(eq):
 	year_start_file = os.getcwd() + "/asset_manager/data/equity/{}/year_start.json"
 	year_start_file = year_start_file.format(eq.ticker)
 
+	current_year = date.today().year
 	year_start_data = {}
+	
 	if os.path.exists(year_start_file):
 		with open(year_start_file, "r") as data_file:
 			year_start_data = json.load(data_file)
 
-		return year_start_data["yearStartPrice"]
+		if year_start_data["year"] == current_year:
+			return year_start_data["yearStartPrice"]
 	
 	first_trading_day = get_first_trading_day_of_year()
 	unix_time = first_trading_day.strftime("%s")
@@ -52,6 +55,7 @@ def get_equity_year_start_price(eq):
 	
 	# save year start price for ticker to the data folder
 	year_start_data["yearStartPrice"] = year_start_price
+	year_start_data["year"] = current_year
 
 	with open(year_start_file, "w") as data_file:
 		json.dump(year_start_data, data_file)

@@ -12,6 +12,8 @@ class PortfolioAnalyzer:
 	# constructor
 	def __init__(self, p):
 		self.portfolio = p
+		self.current_year = date.today().year
+		
 		self.ticker_to_timeseries = {}
 		for eq in p.equities:
 			self.ticker_to_timeseries[eq.ticker] = {}
@@ -116,7 +118,7 @@ class PortfolioAnalyzer:
 			self.ticker_to_timeseries[eq.ticker]["5Y"] = equity_service.update_equity_details(eq, "5Y")
 
 			# get the year start price of the stock
-			if equity_details.yearStartPrice == None:
+			if equity_details.yearStartPrice == None or self.current_year != self.portfolio.valuation.currentYear:
 				equity_details.yearStartPrice = equity_service.get_equity_year_start_price(equity_details)
 				equity_details.save()
 
@@ -125,12 +127,11 @@ class PortfolioAnalyzer:
 	
 	# method handles updating the valuation fields for the retrieved portfolio
 	def update_valuation(self):
-		current_year = date.today().year
 		if self.portfolio.valuation == None:
-			self.portfolio.valuation = Valuation(currentYear=current_year)
+			self.portfolio.valuation = Valuation(currentYear=self.current_year)
 		else:
-			if self.portfolio.valuation.currentYear != current_year:
-				self.portfolio.valuation.currentYear = current_year
+			if self.portfolio.valuation.currentYear != self.current_year:
+				self.portfolio.valuation.currentYear = self.current_year
 		
 		self.compute_year_start_value()
 		self.compute_total_value()
