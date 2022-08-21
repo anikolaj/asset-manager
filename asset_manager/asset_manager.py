@@ -34,7 +34,7 @@ def main():
 	log_equities(p)
 	
 	# output treasury rates
-	log_treasuries()
+	# log_treasuries()
 	
 	# add call to method to prompt CLI for executing portfolio commands
 	portfolio_prompt = cli(portfolio_analyzer)
@@ -83,15 +83,6 @@ def log_equities(p):
 
 	print("")
 
-# method handles logging treasury rates
-def log_treasuries():
-	print("- TREASURY RATES")
-	print("symbol" + "\t\t" + "rate")
-	print("US 30 Year" + "\t" + str(rates.UST30Y) + "%")
-	print("US 10 Year" + "\t" + str(rates.UST10Y) + "%")
-	print("US 5 Year" + "\t" + str(rates.UST5Y) + "%")
-	print("US 1 Year" + "\t" + str(rates.UST1Y) + "%")
-	print("US 6 Month" + "\t" + str(rates.UST6MO) + "%")
-	print("US 3 Month" + "\t" + str(rates.UST3MO) + "%")
-	print("US 1 Month" + "\t" + str(rates.UST1MO) + "%")
-	print("")
+# method handles logging treasuries in the specified portfolio
+# def log_treasuries():
+# 	print("LOG PORTFOLIO TREASURIES HERE")

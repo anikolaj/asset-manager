@@ -1,3 +1,4 @@
+import asset_manager.rates as rates
 from asset_manager.excel_utility import ExcelUtility
 
 class cli:
@@ -26,6 +27,8 @@ class cli:
 			self.sell(portfolio_command)
 		elif portfolio_action == "DEPOSIT":
 			self.deposit(portfolio_command)
+		elif portfolio_action == "RATES":
+			self.rates()
 		elif portfolio_action == "EXPORT":
 			self.export(excel_utility)
 		elif portfolio_action == "EXIT":
@@ -87,6 +90,18 @@ class cli:
 		else:
 			print("INVALID COMMAND FORMAT - MUST BE \"DEPOSIT [AMOUNT]\"")
 			return
+
+	# ACTION = RATES
+	def rates(self):
+		print("symbol" + "\t\t" + "rate")
+		print("US 30 Year" + "\t" + str(rates.UST30Y) + "%")
+		print("US 10 Year" + "\t" + str(rates.UST10Y) + "%")
+		print("US 5 Year" + "\t" + str(rates.UST5Y) + "%")
+		print("US 1 Year" + "\t" + str(rates.UST1Y) + "%")
+		print("US 6 Month" + "\t" + str(rates.UST6MO) + "%")
+		print("US 3 Month" + "\t" + str(rates.UST3MO) + "%")
+		print("US 1 Month" + "\t" + str(rates.UST1MO) + "%")
+		print("")
 
 	# ACTION = EXPORT
 	def export(self, excel_utility):

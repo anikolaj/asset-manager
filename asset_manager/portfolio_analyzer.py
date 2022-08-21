@@ -146,7 +146,10 @@ class PortfolioAnalyzer:
 	
 	# method computes the total value of all assets in the portfolio
 	def compute_total_value(self):
-		total_value = 0
+		# cash value
+		total_value = self.portfolio.cash
+		
+		# equity value
 		for equity in self.portfolio.equities:
 			total_value += (equity.shares * equity.price)
 	
@@ -158,7 +161,7 @@ class PortfolioAnalyzer:
 	
 	# method computes the year start value of all assets in the portfolio
 	def compute_year_start_value(self):
-		start_value = 0
+		start_value = self.portfolio.cash
 		for equity in self.portfolio.equities:
 			start_value += (equity.shares * equity.yearStartPrice)
 
