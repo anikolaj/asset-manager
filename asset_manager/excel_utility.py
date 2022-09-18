@@ -6,7 +6,7 @@ import asset_manager.math_functions as mf
 
 class ExcelUtility:
 	
-	yellow_background = styles.PatternFill(fgColor=styles.colors.YELLOW, fill_type="solid")
+	yellow_background = styles.PatternFill(fgColor=styles.colors.COLOR_INDEX[5], fill_type="solid")
 	
 	def __init__(self, portfolio_analyzer):
 		self.portfolio_analyzer = portfolio_analyzer
