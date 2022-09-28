@@ -7,8 +7,5 @@ mongodb:
 finnhub:
   key: "KEY"
 
-iex:
-  key: "KEY"
-
 fred:
   key: "KEY"

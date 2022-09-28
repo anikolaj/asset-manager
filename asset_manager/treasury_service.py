@@ -6,7 +6,7 @@ from datetime import date
 from asset_manager.constants import *
 import asset_manager.rates as rates
 
-IEX_KEY = ""
+FRED_KEY = ""
 
 # TREASURY SYMBOLS
 DGS30 = "DGS30"
@@ -17,10 +17,10 @@ DGS6MO = "DGS6MO"
 DGS3MO = "DGS3MO"
 DGS1MO = "DGS1MO"
 
-# method sets api key used for IEX Cloud api
+# method sets api key used for FRED api
 def set_api_key(config):
-	global IEX_KEY
-	IEX_KEY = config["iex"]["key"]
+	global FRED_KEY
+	FRED_KEY = config["fred"]["key"]
 
 # method sets all the treasury rates for the app
 def get_all_treasury_rates():
@@ -48,7 +48,7 @@ def get_treasury_rate(symbol):
 	response = {}
 		
 	if os.path.exists(filename) == False:
-		api_string = TREASURY_RATE.format(symbol, IEX_KEY)
+		api_string = FRED_TREASURY_RATE.format(symbol, FRED_KEY)
 		response = requests.get(api_string).json()
 		
 		# save response to file in directory
@@ -60,5 +60,5 @@ def get_treasury_rate(symbol):
 		
 	os.chdir(current_directory)
 
-	rate = response[0]["value"]
+	rate = response["observations"][0]["value"]
 	return rate
