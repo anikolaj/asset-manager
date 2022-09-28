@@ -9,3 +9,6 @@ finnhub:
 
 iex:
   key: "KEY"
+
+fred:
+  key: "KEY"
