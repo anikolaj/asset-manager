@@ -4,8 +4,7 @@ import yaml
 import asset_manager.database as db
 import asset_manager.equity_service as equity_service
 import asset_manager.treasury_service as treasury_service
-import asset_manager.cli as cli
-import asset_manager.rates as rates
+from asset_manager.cli import cli
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 from asset_manager.cli import cli
 from asset_manager.entities import *
