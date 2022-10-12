@@ -105,7 +105,9 @@ class cli:
 
 	# ACTION = EXPORT
 	def export(self, excel_utility):
+		print("generating portfolio")
 		excel_utility.generate_portfolio_workbook()
+		print("")
 
 	# ACTION = HELP
 	def help(self):
