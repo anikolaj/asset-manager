@@ -21,7 +21,6 @@ class ExcelUtility:
 		self.monthly_standard_deviation_column = None
 	
 	def generate_portfolio_workbook(self):
-		print("generating portfolio")
 		self.write_summary()
 		self.write_statistics()
 		self.write_mvp()
