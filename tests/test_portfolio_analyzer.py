@@ -3,9 +3,9 @@ from unittest.mock import patch
 from unittest.mock import MagicMock
 import numpy as np
 
-import asset_manager.database
+import asset_manager.database_legacy
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
-from asset_manager.entities import *
+from asset_manager.entities_legacy import *
 from asset_manager.objects import *
 
 class TestPortfolioAnalyzer(unittest.TestCase):

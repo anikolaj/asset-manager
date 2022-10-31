@@ -1,22 +1,34 @@
 import sys
 import yaml
 
-import asset_manager.database as db
+from asset_manager.database_new import Database
 import asset_manager.equity_service as equity_service
 import asset_manager.treasury_service as treasury_service
 from asset_manager.cli import cli
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 from asset_manager.cli import cli
-from asset_manager.entities import *
+from asset_manager.entities_new import Portfolio
 
 # application launch point
 def main():
 	print("launching asset manager")
 	print("")
-	configure_services()
+
+	# load config and configure services
+	config = load_config()
+	equity_service.set_api_key(config)
+	treasury_service.set_api_key(config)
+
+	# establish database connection
+	db = Database(
+		user=config["mongodb"]["username"],
+		password=config["mongodb"]["password"],
+		database=config["mongodb"]["database"],
+		cluster=config["mongodb"]["cluster"]
+	)
 	
 	# get portfolio specified on command line
-	p = retrieve_portfolio()
+	p = retrieve_portfolio(db)
 	if p is None: return
 	
 	# retrieve treasury rates
@@ -25,6 +37,7 @@ def main():
 	# construct portfolio analyzer and update details
 	portfolio_analyzer = PortfolioAnalyzer(p)
 	portfolio_analyzer.analyze()
+	db.save_portfolio(portfolio_analyzer.portfolio)
 
 	# output cash
 	log_cash(p)
@@ -36,21 +49,16 @@ def main():
 	# log_treasuries()
 	
 	# add call to method to prompt CLI for executing portfolio commands
-	portfolio_prompt = cli(portfolio_analyzer)
+	portfolio_prompt = cli(portfolio_analyzer=portfolio_analyzer, db=db)
 	portfolio_prompt.run_prompt()
 
 # import credentials to connect to external services
-def configure_services():
-	config = {}
+def load_config() -> dict:
 	with open("asset_manager/config.yml", "r") as config_file:
-		config = yaml.safe_load(config_file)
-	
-	db.open_connection(config)
-	equity_service.set_api_key(config)
-	treasury_service.set_api_key(config)
+		return yaml.safe_load(config_file)
 
 # get portfolio or create a new one
-def retrieve_portfolio():
+def retrieve_portfolio(db: Database) -> Portfolio:
 	portfolio_name = sys.argv[1]
 	p = db.get_portfolio_by_name(portfolio_name)
 	
@@ -68,13 +76,13 @@ def retrieve_portfolio():
 	return p
 
 # method handles logging cash balance in the specified portfolio
-def log_cash(p):
+def log_cash(p: Portfolio) -> None:
 	print("- CASH")
 	print(f"{p.cash} USD")
 	print("")
 
 # method handles logging equities in the specified portfolio
-def log_equities(p):
+def log_equities(p: Portfolio) -> None:
 	print("- EQUITIES")
 	print("ticker" + "\t" + "price" + "\t" + "shares" + "\t" + "ytd")
 	for eq in p.equities:

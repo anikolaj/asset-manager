@@ -2,15 +2,14 @@ from datetime import date
 import math
 import numpy as np
 
-import asset_manager.database as db
 import asset_manager.math_functions as mf
 import asset_manager.equity_service as equity_service
-from asset_manager.entities import *
+from asset_manager.entities_new import Equity, Portfolio, Valuation
 
 class PortfolioAnalyzer:
 
 	# constructor
-	def __init__(self, p):
+	def __init__(self, p: Portfolio):
 		self.portfolio = p
 		self.current_year = date.today().year
 		
@@ -34,48 +33,6 @@ class PortfolioAnalyzer:
 		self.mvl_a = {}
 		self.mvl_b = {}
 		self.mvl_c = {}
-	
-	# method handles adding equity in the portfolio and database
-	def buy_equity(self, ticker, shares):
-		shares = round(float(shares), 4)
-		new_equity = EquityHolding(ticker=ticker, shares=shares, weight=0, price=0)
-		price = equity_service.get_equity_price(new_equity)
-
-		if (price * shares) > self.portfolio.cash:
-			raise ValueError("cash balance is too low to purchase this block of assets")
-		
-		self.portfolio.equities.append(new_equity)
-		self.portfolio.cash = round(self.portfolio.cash - (price * shares), 2)
-		self.portfolio.save()
-
-		self.ticker_to_timeseries[ticker] = {}
-
-		print(f"successfully added {ticker} to portfolio = {self.portfolio.name}")
-
-	# method handles removing equity from the portfolio and database
-	def sell_equity(self, ticker, str_shares):
-		sell_shares = 0
-		if str_shares != "ALL":
-			sell_shares = float(str_shares)
-		
-		sell_amount = 0
-		for equity in self.portfolio.equities:
-			if equity.ticker == ticker:
-				if str_shares == "ALL" or sell_shares >= equity.shares:
-					sell_amount = equity.price * equity.shares
-					self.portfolio.equities.remove(equity)
-				else:
-					sell_amount = equity.price * sell_shares
-					equity.shares = equity.shares - sell_shares
-
-				self.portfolio.cash += round(sell_amount, 2)
-				
-				self.portfolio.save()
-
-	# method handles depositing amount into portfolio cash balance
-	def deposit(self, deposit_amount):
-		self.portfolio.cash += deposit_amount
-		self.portfolio.save()
 
 	# method handles analyzing portoflio to calculate necessary metrics and feature vectors
 	def analyze(self):
@@ -104,9 +61,6 @@ class PortfolioAnalyzer:
 
 		# equity details
 		for eq in self.portfolio.equities:
-			# look up equity details
-			equity_details = db.get_equity_by_ticker(eq.ticker)
-			
 			# get current stock price
 			eq.price = equity_service.get_equity_price(eq)
 			
@@ -118,25 +72,27 @@ class PortfolioAnalyzer:
 			self.ticker_to_timeseries[eq.ticker]["5Y"] = equity_service.update_equity_details(eq, "5Y")
 
 			# get the year start price of the stock
-			if equity_details.yearStartPrice == None or self.current_year != self.portfolio.valuation.currentYear:
-				equity_details.yearStartPrice = equity_service.get_equity_year_start_price(equity_details)
-				equity_details.save()
+			if eq.year_start_price == None or self.current_year != self.portfolio.valuation.current_year:
+				eq.year_start_price = equity_service.get_equity_year_start_price(eq)
 
-			eq.yearStartPrice = equity_details.yearStartPrice
-			eq.ytd = (eq.price / eq.yearStartPrice) - 1
+			eq.ytd = (eq.price / eq.year_start_price) - 1
 	
 	# method handles updating the valuation fields for the retrieved portfolio
 	def update_valuation(self):
 		if self.portfolio.valuation == None:
-			self.portfolio.valuation = Valuation(currentYear=self.current_year)
+			self.portfolio.valuation = Valuation(
+				current_value=0,
+				ytd=0,
+				year_start_value=0,
+				current_year=self.current_year
+			)
 		else:
-			if self.portfolio.valuation.currentYear != self.current_year:
-				self.portfolio.valuation.currentYear = self.current_year
+			if self.portfolio.valuation.current_year != self.current_year:
+				self.portfolio.valuation.current_year = self.current_year
 		
 		self.compute_year_start_value()
 		self.compute_total_value()
-		self.portfolio.valuation.ytd = (self.portfolio.value / self.portfolio.valuation.yearStartValue) - 1
-		self.portfolio.save()
+		self.portfolio.valuation.ytd = (self.portfolio.value / self.portfolio.valuation.year_start_value) - 1
 
 		ytd_percent = round(self.portfolio.valuation.ytd * 100, 2)
 		
@@ -156,18 +112,16 @@ class PortfolioAnalyzer:
 		total_value = round(total_value, 2)
 		
 		self.portfolio.value = total_value
-		self.portfolio.valuation.currentValue = total_value
-		self.portfolio.save()
+		self.portfolio.valuation.current_value = total_value
 	
 	# method computes the year start value of all assets in the portfolio
 	def compute_year_start_value(self):
 		start_value = self.portfolio.cash
 		for equity in self.portfolio.equities:
-			start_value += (equity.shares * equity.yearStartPrice)
+			start_value += (equity.shares * equity.year_start_price)
 
 		start_value = round(start_value, 8)
-		self.portfolio.valuation.yearStartValue = start_value
-		self.portfolio.save()
+		self.portfolio.valuation.year_start_value = start_value
 	
 	# method calculates the feature vectors used to describe the portfolio
 	def compute_features(self, time_interval):

@@ -1,10 +1,14 @@
+from asset_manager.database_new import Database
+from asset_manager.portfolio_analyzer import PortfolioAnalyzer
+from asset_manager.portfolio_operations import buy_equity, deposit, sell_equity
 import asset_manager.rates as rates
 from asset_manager.excel_utility import ExcelUtility
 
 class cli:
 
-	def __init__(self, portfolio_analyzer):
+	def __init__(self, portfolio_analyzer: PortfolioAnalyzer, db: Database):
 		self.portfolio_analyzer = portfolio_analyzer
+		self.db = db
 
 	# run portfolio command prompt
 	def run_prompt(self):
@@ -63,7 +67,7 @@ class cli:
 			return
 
 		try:
-			self.portfolio_analyzer.buy_equity(ticker, shares)
+			buy_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, shares=shares, db=self.db)
 			self.portfolio_analyzer.analyze()
 		except Exception as e:
 			print("Exception occurred while trying to buy asset. Please view below")
@@ -79,14 +83,14 @@ class cli:
 			print("SHARES = numeric value or \"ALL\"")
 			return
 
-		self.portfolio_analyzer.sell_equity(ticker, shares)
+		sell_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, str_shares=shares, db=self.db)
 		self.portfolio_analyzer.analyze()
 
 	# ACTION = DEPOSIT
 	def deposit(self, portfolio_command):
 		if len(portfolio_command) == 2:
 			deposit_amount = float(portfolio_command[1])
-			self.portfolio_analyzer.deposit(deposit_amount)
+			deposit(portfolio=self.portfolio_analyzer.portfolio, deposit_amount=deposit_amount, db=self.db)
 		else:
 			print("INVALID COMMAND FORMAT - MUST BE \"DEPOSIT [AMOUNT]\"")
 			return

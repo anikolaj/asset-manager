@@ -1,6 +1,6 @@
 from mongoengine import connect
 
-from asset_manager.entities import *
+from asset_manager.entities_legacy import *
 
 # this class will handle all the queries to the asset manager database
 

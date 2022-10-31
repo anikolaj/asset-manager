@@ -3,7 +3,7 @@ import json
 import requests
 from datetime import date
 
-from asset_manager.constants import *
+from asset_manager.constants import FRED_TREASURY_RATE
 import asset_manager.rates as rates
 
 FRED_KEY = ""

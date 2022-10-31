@@ -6,25 +6,25 @@ import time
 from datetime import date, timedelta
 from scipy.stats import gmean
 
-from asset_manager.entities import *
-from asset_manager.objects import *
+from asset_manager.entities_new import Equity
+from asset_manager.objects import TimeSeriesDetails
 from asset_manager.constants import *
 
 FINNHUB_KEY = ""
 
 # method sets api key used for finnhub.io api
-def set_api_key(config):
+def set_api_key(config: dict) -> None:
 	global FINNHUB_KEY
 	FINNHUB_KEY = config["finnhub"]["key"]
 
 # method retrieves the most recent price for the equity
-def get_equity_price(eq):
+def get_equity_price(eq: Equity) -> float:
 	api_string = STOCK_QUOTE.format(eq.ticker, FINNHUB_KEY)
 	quote = requests.get(api_string).json()
 	return round(quote["c"], 2)
 
 # method retrieves the year start price for the equity
-def get_equity_year_start_price(eq):
+def get_equity_year_start_price(eq: Equity) -> float:
 	print(f"getting year start price - {eq.ticker}")
 	
 	# check if year start already exists for the given ticker

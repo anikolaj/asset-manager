@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from unittest.mock import mock_open
 
 import asset_manager.equity_service as equity_service
-from asset_manager.entities import *
+from asset_manager.entities_legacy import *
 
 class TestEquityService(unittest.TestCase):
 	

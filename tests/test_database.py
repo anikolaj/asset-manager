@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
-import asset_manager.database as db
-from asset_manager.entities import *
+import asset_manager.database_legacy as db
+from asset_manager.entities_legacy import *
 
 class TestDatabase(unittest.TestCase):
 	

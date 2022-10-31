@@ -2,9 +2,9 @@ import unittest
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
-import asset_manager.database
+import asset_manager.database_legacy
 from asset_manager.asset_manager import launch
-from asset_manager.entities import *
+from asset_manager.entities_legacy import *
 
 class TestAssetManager(unittest.TestCase):
 	@patch('asset_manager.asset_manager.sys')
