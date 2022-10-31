@@ -1,7 +1,8 @@
 mongodb:
-  db: "DB"
   username: "USERNAME"
   password: "PASSWORD"
+  database: "DATABASE"
+  cluster: "CLUSTER"
   host: "HOST"
 
 finnhub:
