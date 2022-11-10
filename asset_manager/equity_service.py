@@ -2,8 +2,7 @@ import requests
 import statistics
 import os
 import json
-import time
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 from scipy.stats import gmean
 
 from asset_manager.entities_new import Equity
@@ -31,7 +30,7 @@ def get_equity_year_start_price(eq: Equity) -> float:
 	year_start_file = os.getcwd() + "/asset_manager/data/equity/{}/year_start.json"
 	year_start_file = year_start_file.format(eq.ticker)
 
-	current_year = date.today().year
+	current_year = datetime.today().year
 	year_start_data = {}
 	
 	if os.path.exists(year_start_file):
@@ -63,13 +62,13 @@ def get_equity_year_start_price(eq: Equity) -> float:
 	return year_start_price
 
 # method computes average daily return for the equity
-def update_equity_details(eq, time_interval):
-	today = date.today()
+def update_equity_details(eq: Equity, time_interval: str):
+	now_time = datetime.today()
 	from_date = ""
 	to_date = ""
 	timeseries_key = ""
 	
-	to_date = today.replace(day=1)
+	to_date = now_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 	from_date = to_date - timedelta(days=10*365)
 	resolution = "M"
 	
@@ -81,13 +80,13 @@ def update_equity_details(eq, time_interval):
 		os.makedirs(daily_directory)
 	os.chdir(daily_directory)
 	
-	filename = str(to_date) + ".json"
+	filename = f"{to_date.date()}.json"
 	response = {}
 		
 	if os.path.exists(filename) == False:
 		print("making request to finnhub.io api")
-		from_unix = from_date.strftime("%s")
-		to_unix = today.replace(day=2).strftime("%s")
+		from_unix = int(from_date.timestamp())
+		to_unix = int(to_date.replace(day=2).timestamp())
 		api_string = STOCK_DATA.format(eq.ticker, resolution, from_unix, to_unix, FINNHUB_KEY)
 		response = requests.get(api_string).json()
 		
@@ -154,12 +153,12 @@ def get_first_trading_day_of_year():
 	with open("asset_manager/global_data.json", "r") as data_file:
 		global_data = json.load(data_file)
 
-	first_trading_day = date.fromisoformat(global_data["firstTradingDay"])
-	today_date = date.today()
+	first_trading_day = datetime.fromisoformat(global_data["firstTradingDay"]).date()
+	today_date = datetime.today().date()
 
 	# below condition is for new year when we need to recalculate the first trading day
 	if first_trading_day.year != today_date.year:
-		d = date(today_date.year, 1, 2)
+		d = datetime(today_date.year, 1, 2).date()
 
 		while d.weekday() == 5 or d.weekday() == 6:
 			d += timedelta(days=1)
