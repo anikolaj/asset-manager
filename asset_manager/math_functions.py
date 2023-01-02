@@ -3,7 +3,8 @@ import numpy as np
 
 from scipy.stats import pearsonr
 
-def compute_covariance_with_correlation_coefficient(x_data, y_data, x_stdev, y_stdev):
+
+def compute_covariance_with_correlation_coefficient(x_data: list[float], y_data: list[float], x_stdev: float, y_stdev: float) -> np.float64:
 	x_len = len(x_data)
 	y_len = len(y_data)
 
@@ -13,30 +14,33 @@ def compute_covariance_with_correlation_coefficient(x_data, y_data, x_stdev, y_s
 			x_data = x_data[diff : x_len]
 		else:
 			y_data = y_data[diff : y_len]
-	
+
 	covariance = None
 	if len(x_data) > 1:
 		rho, p_val = pearsonr(x_data, y_data)
 		covariance = rho * x_stdev * y_stdev
-	
+
 	return covariance
 
-def calculate_expected_value(X, p):
+
+def calculate_expected_value(X: np.ndarray, p: np.ndarray) -> np.float64:
 	p_t = np.transpose(p)
 	expected_value = round(X @ p_t, 8)
 	return expected_value
 
-def calculate_variance(C, p):
+
+def calculate_variance(C: np.ndarray, p: np.ndarray) -> float:
 	p_t = np.transpose(p)
-	
+
 	variance = None
 	if C.size != 0:
 		variance = p @ C @ p_t
 		variance = round(variance.item(), 8)
-	
+
 	return variance
 
-def solve_quadratic_formula(a, b, c):
+
+def solve_quadratic_formula(a: np.float64, b: np.float64, c: np.float64) -> tuple[np.float64, np.float64]:
 	r = (b ** 2) - (4 * a * c)
 
 	if r == -1:

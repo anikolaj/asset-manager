@@ -17,13 +17,15 @@ DGS6MO = "DGS6MO"
 DGS3MO = "DGS3MO"
 DGS1MO = "DGS1MO"
 
+
 # method sets api key used for FRED api
-def set_api_key(config):
+def set_api_key(config: dict) -> None:
 	global FRED_KEY
 	FRED_KEY = config["fred"]["key"]
 
+
 # method sets all the treasury rates for the app
-def get_all_treasury_rates():
+def get_all_treasury_rates() -> None:
 	rates.UST30Y = get_treasury_rate(DGS30)
 	rates.UST10Y = get_treasury_rate(DGS10)
 	rates.UST5Y = get_treasury_rate(DGS5)
@@ -32,8 +34,9 @@ def get_all_treasury_rates():
 	rates.UST3MO = get_treasury_rate(DGS3MO)
 	rates.UST1MO = get_treasury_rate(DGS1MO)
 
+
 # method retrieves the treasury rate for the given symbol
-def get_treasury_rate(symbol):
+def get_treasury_rate(symbol: str) -> float:
 	today = date.today()
 
 	current_directory = os.getcwd()
@@ -43,22 +46,22 @@ def get_treasury_rate(symbol):
 	if os.path.exists(symbol_directory) == False:
 		os.makedirs(symbol_directory)
 	os.chdir(symbol_directory)
-	
+
 	filename = str(today) + ".json"
 	response = {}
-		
+
 	if os.path.exists(filename) == False:
 		api_string = FRED_TREASURY_RATE.format(symbol, FRED_KEY)
 		response = requests.get(api_string).json()
-		
+
 		# save response to file in directory
 		with open(filename, "w") as json_file:
 			json.dump(response, json_file)
 	else:
 		with open(filename, "r") as json_file:
 			response = json.load(json_file)
-		
+
 	os.chdir(current_directory)
 
 	rate = response["observations"][0]["value"]
-	return rate
+	return float(rate)
