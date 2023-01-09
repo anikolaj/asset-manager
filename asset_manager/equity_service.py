@@ -1,8 +1,8 @@
+import datetime
 import requests
 import statistics
 import os
 import json
-from datetime import datetime, timedelta
 from scipy.stats import gmean
 
 from asset_manager.entities_new import Equity
@@ -28,13 +28,10 @@ def get_equity_price(eq: Equity) -> float:
 # method retrieves the year start price for the equity
 def get_equity_year_start_price(eq: Equity) -> float:
     print(f"getting year start price - {eq.ticker}")
+    current_year = datetime.datetime.today().year
 
     # check if year start already exists for the given ticker
-    year_start_file = os.getcwd() + "/asset_manager/data/equity/{}/year_start.json"
-    year_start_file = year_start_file.format(eq.ticker)
-
-    current_year = datetime.today().year
-    year_start_data = {}
+    year_start_file = f"./asset_manager/data/equity/{eq.ticker}/year_start.json"
 
     if os.path.exists(year_start_file):
         with open(year_start_file, "r") as data_file:
@@ -44,7 +41,7 @@ def get_equity_year_start_price(eq: Equity) -> float:
             return year_start_data["yearStartPrice"]
 
     first_trading_day = get_first_trading_day_of_year()
-    unix_time = first_trading_day.strftime("%s")
+    unix_time = int(first_trading_day.timestamp())
 
     api_string = STOCK_DATA.format(eq.ticker, "D", unix_time, unix_time, FINNHUB_KEY)
     response = requests.get(api_string).json()
@@ -67,12 +64,12 @@ def get_equity_year_start_price(eq: Equity) -> float:
 
 # method computes average daily return for the equity
 def update_equity_details(eq: Equity, time_interval: str) -> TimeSeriesDetails:
-    now_time = datetime.today()
+    now_time = datetime.datetime.today()
     from_date = ""
     to_date = ""
 
     to_date = now_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    from_date = to_date - timedelta(days=10*365)
+    from_date = to_date - datetime.timedelta(days=10*365)
     resolution = "M"
 
     current_directory = os.getcwd()
@@ -154,23 +151,17 @@ def calculate_time_series_details(time_series: list) -> TimeSeriesDetails:
     return TimeSeriesDetails(returns, gmean(percent_changes)-1, stdev)
 
 
-def get_first_trading_day_of_year() -> datetime.date:
-    global_data = {}
+def get_first_trading_day_of_year() -> datetime.datetime:
     with open("asset_manager/global_data.json", "r") as data_file:
         global_data = json.load(data_file)
 
-    first_trading_day = datetime.fromisoformat(global_data["firstTradingDay"]).date()
-    today_date = datetime.today().date()
+    first_trading_day = datetime.datetime.fromisoformat(global_data["firstTradingDay"])
+    today_date = datetime.datetime.today().date()
 
-    # below condition is for new year when we need to recalculate the first trading day
     if first_trading_day.year != today_date.year:
-        d = datetime(today_date.year, 1, 2).date()
-
-        while d.weekday() == 5 or d.weekday() == 6:
-            d += timedelta(days=1)
-
-        first_trading_day = d
-        global_data["firstTradingDay"] = first_trading_day.isoformat()
+        first_day = input("Please enter the first trading of the current year (YYYY-MM-DD) = ")
+        first_trading_day = datetime.datetime.fromisoformat(first_day)
+        global_data["firstTradingDay"] = first_day
 
         with open("asset_manager/global_data.json", "w") as data_file:
             json.dump(global_data, data_file)
