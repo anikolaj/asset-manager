@@ -113,4 +113,10 @@ class cli:
 
     # ACTION = HELP
     def help(self) -> None:
-        pass
+        print("Portfolio Commands" + "\t\t" + "Definition")
+        print("- BUY [TICKER] [SHARES]" + "\t\t" + "Buys SHARES for the provided TICKER. Currently supports equity tickers")
+        print("- SELL [TICKER] [SHARES]" + "\t" + "Sells SHARES for the provided TICKER. SHARES can also be 'ALL' to indicate total sell")
+        print("- DEPOSIT [AMOUNT]" + "\t\t" + "Adds given AMOUNT to portfolio cash balance. AMOUNT must be a decimal")
+        print("- REWEIGHT [TIME_INTERVAL]" + "\t" + "Adjusts share amounts to achieve minimum variance portfolio for TIME_INTERVAL (daily, weekly, monthly)")
+        print("- RATES" + "\t\t\t\t" + "Outputs the current US Treasury rates")
+        print("")
