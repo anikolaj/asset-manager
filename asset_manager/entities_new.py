@@ -61,6 +61,6 @@ class Portfolio:
         entity["value"] = self.value
         entity["cash"] = self.cash
         entity["equities"] = [equity.to_dict() for equity in self.equities]
-        entity["valuation"] = self.valuation.to_dict()
+        entity["valuation"] = self.valuation.to_dict() if self.valuation is self.valuation is not None else None
 
         return entity

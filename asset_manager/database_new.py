@@ -14,6 +14,9 @@ class Database:
         portfolios = self.db.get_collection("portfolio")
         portfolio_entity = portfolios.find_one({"name": portfolio_name})
 
+        if portfolio_entity is None:
+            return None
+
         equities = []
         for equity_entity in portfolio_entity["equities"]:
             equities.append(self.__convert_entity_to_equity(equity_entity))

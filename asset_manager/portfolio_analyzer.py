@@ -92,7 +92,11 @@ class PortfolioAnalyzer:
 
         self.compute_year_start_value()
         self.compute_total_value()
-        self.portfolio.valuation.ytd = (self.portfolio.value / self.portfolio.valuation.year_start_value) - 1
+        self.portfolio.valuation.ytd = (
+            (self.portfolio.value / self.portfolio.valuation.year_start_value) - 1
+            if self.portfolio.valuation.year_start_value != 0
+            else 0
+        )
 
         ytd_percent = round(self.portfolio.valuation.ytd * 100, 2)
 

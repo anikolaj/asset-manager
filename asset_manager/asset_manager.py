@@ -88,8 +88,11 @@ def log_cash(p: Portfolio) -> None:
 # method handles logging equities in the specified portfolio
 def log_equities(p: Portfolio) -> None:
     print("- EQUITIES")
-    print("ticker" + "\t" + "price" + "\t" + "shares" + "\t" + "ytd")
-    for eq in p.equities:
-        print(eq.ticker + "\t" + str(eq.price) + "\t" + str(eq.shares) + "\t" + f"{str(round(eq.ytd * 100, 2))}%")
+    if len(p.equities) != 0:
+        print("ticker" + "\t" + "price" + "\t" + "shares" + "\t" + "ytd")
+        for eq in p.equities:
+            print(eq.ticker + "\t" + str(eq.price) + "\t" + str(eq.shares) + "\t" + f"{str(round(eq.ytd * 100, 2))}%")
+    else:
+        print("no equities in portfolio")
 
     print("")
