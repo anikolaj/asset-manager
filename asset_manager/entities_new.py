@@ -5,7 +5,15 @@ from bson import ObjectId
 
 
 class Equity:
-    def __init__(self, ticker: str, shares: float, weight: float, price: float, year_start_price: float, ytd: float) -> None:
+    def __init__(
+        self,
+        ticker: str,
+        shares: float,
+        price: float,
+        weight: Optional[float] = None,
+        year_start_price: Optional[float] = None,
+        ytd: Optional[float] = None
+    ) -> None:
         self.ticker = ticker
         self.shares = shares
         self.weight = weight

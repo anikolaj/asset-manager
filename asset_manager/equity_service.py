@@ -19,8 +19,8 @@ def set_api_key(config: dict) -> None:
 
 
 # method retrieves the most recent price for the equity
-def get_equity_price(eq: Equity) -> float:
-    api_string = STOCK_QUOTE.format(eq.ticker, FINNHUB_KEY)
+def get_equity_price(ticker: str) -> float:
+    api_string = STOCK_QUOTE.format(ticker, FINNHUB_KEY)
     quote = requests.get(api_string).json()
     return round(quote["c"], 2)
 
@@ -39,6 +39,8 @@ def get_equity_year_start_price(eq: Equity) -> float:
 
         if year_start_data["year"] == current_year:
             return year_start_data["yearStartPrice"]
+    else:
+        year_start_data = {}
 
     first_trading_day = get_first_trading_day_of_year()
     unix_time = int(first_trading_day.timestamp())

@@ -119,4 +119,5 @@ class cli:
         print("- DEPOSIT [AMOUNT]" + "\t\t" + "Adds given AMOUNT to portfolio cash balance. AMOUNT must be a decimal")
         print("- REWEIGHT [TIME_INTERVAL]" + "\t" + "Adjusts share amounts to achieve minimum variance portfolio for TIME_INTERVAL (daily, weekly, monthly)")
         print("- RATES" + "\t\t\t\t" + "Outputs the current US Treasury rates")
+        print("- EXPORT" + "\t\t\t" + "Writes portfolio data to local Excel workbook")
         print("")

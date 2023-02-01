@@ -62,7 +62,7 @@ class PortfolioAnalyzer:
         # equity details
         for eq in self.portfolio.equities:
             # get current stock price
-            eq.price = equity_service.get_equity_price(eq)
+            eq.price = equity_service.get_equity_price(eq.ticker)
 
             # retrieve time interval prices for the stock
             self.ticker_to_timeseries[eq.ticker]["1M"] = equity_service.update_equity_details(eq, "1M")
@@ -230,7 +230,7 @@ class PortfolioAnalyzer:
 
     # method computes the parameters that describe the minimum variance line for the assets
     def compute_minimum_variance_line(self, time_interval: str) -> None:
-        if self.C[time_interval].size == 0:
+        if self.C[time_interval].size == 0 or self.C[time_interval].size == 1:
             return
 
         u = np.ones(len(self.portfolio.equities))

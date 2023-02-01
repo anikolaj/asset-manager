@@ -6,12 +6,12 @@ from asset_manager.database_new import Database
 # method handles adding equity in the portfolio and database
 def buy_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database) -> None:
     shares = round(float(shares), 4)
-    new_equity = Equity(ticker=ticker, shares=shares, weight=0, price=0)
-    price = equity_service.get_equity_price(new_equity)
+    price = equity_service.get_equity_price(ticker)
 
     if (price * shares) > portfolio.cash:
         raise ValueError("cash balance is too low to purchase this block of assets")
 
+    new_equity = Equity(ticker=ticker, shares=shares, price=price)
     portfolio.equities.append(new_equity)
     portfolio.cash = round(portfolio.cash - (price * shares), 2)
     db.save_portfolio(portfolio)
