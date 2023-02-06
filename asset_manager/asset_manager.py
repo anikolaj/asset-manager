@@ -81,7 +81,7 @@ def retrieve_portfolio(db: Database) -> Portfolio:
 # method handles logging cash balance in the specified portfolio
 def log_cash(p: Portfolio) -> None:
     print("- CASH")
-    print(f"{p.cash} USD")
+    print(f"{p.cash:,.2f} USD")
     print("")
 
 

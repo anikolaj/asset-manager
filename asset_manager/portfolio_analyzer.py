@@ -100,7 +100,7 @@ class PortfolioAnalyzer:
 
         ytd_percent = round(self.portfolio.valuation.ytd * 100, 2)
 
-        print(f"PORTFOLIO VALUE = {self.portfolio.value} USD")
+        print(f"PORTFOLIO VALUE = {self.portfolio.value:,.2f} USD")
         print(f"YTD = {ytd_percent}%")
         print("")
 
