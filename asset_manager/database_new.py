@@ -1,7 +1,7 @@
 from bson import ObjectId
 from pymongo import MongoClient
 
-from asset_manager.entities_new import Equity, Portfolio, Valuation
+from asset_manager.entities_new import Equity, Portfolio, Trade, Valuation
 
 
 class Database:
@@ -21,6 +21,10 @@ class Database:
         for equity_entity in portfolio_entity["equities"]:
             equities.append(self.__convert_entity_to_equity(equity_entity))
 
+        trades = []
+        for trade_entity in portfolio_entity["trades"]:
+            trades.append(self.__convert_entity_to_trade(trade_entity))
+
         valuation = None
         if portfolio_entity["valuation"] is not None:
             valuation = Valuation(
@@ -36,6 +40,7 @@ class Database:
             value=portfolio_entity["value"],
             cash=portfolio_entity["cash"],
             equities=equities,
+            trades=trades,
             valuation=valuation
         )
 
@@ -47,7 +52,8 @@ class Database:
             name=portfolio_name,
             value=0,
             cash=0,
-            equities=[]
+            equities=[],
+            trades=[]
         )
 
         portfolios = self.db.get_collection("portfolio")
@@ -64,9 +70,9 @@ class Database:
         portfolios = self.db.get_collection("portfolio")
         portfolios.update_one({"_id": portfolio.id}, {"$push": {"equities": new_equity.to_dict()}})
 
-    def get_equity_by_ticker(self, ticker: str) -> Equity:
-        # NOTE - this method isn't really needed, we will utilize if it becomes relevant
-        pass
+    def save_trade(self, trade: Trade) -> None:
+        trades = self.db.get_collection("trades")
+        trades.insert_one(trade.to_dict())
 
     def __convert_entity_to_equity(self, equity_entity: dict) -> Equity:
         return Equity(
@@ -76,4 +82,12 @@ class Database:
             price=equity_entity["price"],
             year_start_price=equity_entity["yearStartPrice"],
             ytd=equity_entity["ytd"]
+        )
+
+    def __convert_entity_to_trade(self, trade_entity: dict) -> Trade:
+        return Trade(
+            ticker=trade_entity["ticker"],
+            price=trade_entity["price"],
+            shares=trade_entity["shares"],
+            execution_time=trade_entity["executionTime"]
         )
