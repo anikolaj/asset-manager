@@ -22,16 +22,14 @@ class Equity:
         self.ytd = ytd
 
     def to_dict(self) -> dict:
-        entity = {}
-
-        entity["ticker"] = self.ticker
-        entity["shares"] = self.shares
-        entity["weight"] = self.weight
-        entity["price"] = self.price
-        entity["yearStartPrice"] = self.year_start_price
-        entity["ytd"] = self.ytd
-
-        return entity
+        return {
+            "ticker": self.ticker,
+            "shares": self.shares,
+            "weight": self.weight,
+            "price": self.price,
+            "yearStartPrice": self.year_start_price,
+            "ytd": self.ytd
+        }
 
 
 class Valuation:
@@ -42,14 +40,12 @@ class Valuation:
         self.current_year = current_year
 
     def to_dict(self) -> dict:
-        entity = {}
-
-        entity["currentValue"] = self.current_value
-        entity["ytd"] = self.ytd
-        entity["yearStartValue"] = self.year_start_value
-        entity["currentYear"] = self.current_year
-
-        return entity
+        return {
+            "currentValue": self.current_value,
+            "ytd": self.ytd,
+            "yearStartValue": self.year_start_value,
+            "currentYear": self.current_year
+        }
 
 
 class Trade:
@@ -66,14 +62,12 @@ class Trade:
         self.execution_time = execution_time
 
     def to_dict(self) -> dict:
-        entity = {}
-
-        entity["ticker"] = self.ticker
-        entity["price"] = self.price
-        entity["shares"] = self.shares
-        entity["executionTime"] = self.execution_time
-
-        return entity
+        return {
+            "ticker": self.ticker,
+            "price": self.price,
+            "shares": self.shares,
+            "executionTime": self.execution_time
+        }
 
 
 class Portfolio:
@@ -96,14 +90,12 @@ class Portfolio:
         self.valuation = valuation
 
     def to_dict(self) -> dict:
-        entity = {}
-
-        entity["_id"] = self.id
-        entity["name"] = self.name
-        entity["value"] = self.value
-        entity["cash"] = self.cash
-        entity["equities"] = [equity.to_dict() for equity in self.equities]
-        entity["trades"] = [trade.to_dict() for trade in self.trades]
-        entity["valuation"] = self.valuation.to_dict() if self.valuation is self.valuation is not None else None
-
-        return entity
+        return {
+            "_id": self.id,
+            "name": self.name,
+            "value": self.value,
+            "cash": self.cash,
+            "equities": [equity.to_dict() for equity in self.equities],
+            "trades": [trade.to_dict() for trade in self.trades],
+            "valuation": self.valuation.to_dict() if self.valuation is self.valuation is not None else None
+        }
