@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import date
 import math
 import numpy as np
@@ -13,9 +14,7 @@ class PortfolioAnalyzer:
         self.portfolio = p
         self.current_year = date.today().year
 
-        self.ticker_to_timeseries = {}
-        for eq in p.equities:
-            self.ticker_to_timeseries[eq.ticker] = {}
+        self.ticker_to_timeseries = defaultdict(defaultdict)
 
         self.W = {}
         self.M = {}

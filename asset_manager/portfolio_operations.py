@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from asset_manager import equity_service
-from asset_manager.entities_new import Equity, Portfolio
+from asset_manager.entities_new import Equity, Portfolio, Trade
 from asset_manager.database_new import Database
 
 
@@ -11,9 +13,14 @@ def buy_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database) -> 
     if (price * shares) > portfolio.cash:
         raise ValueError("cash balance is too low to purchase this block of assets")
 
-    new_equity = Equity(ticker=ticker, shares=shares, price=price)
-    portfolio.equities.append(new_equity)
+    portfolio.equities.append(
+        Equity(ticker=ticker, shares=shares, price=price)
+    )
+    portfolio.trades.append(
+        Trade(ticker=ticker, price=price, shares=shares, execution_time=datetime.now())
+    )
     portfolio.cash = round(portfolio.cash - (price * shares), 2)
+
     db.save_portfolio(portfolio)
 
     print(f"successfully added {ticker} to portfolio = {portfolio.name}")
@@ -21,20 +28,19 @@ def buy_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database) -> 
 
 # method handles removing equity from the portfolio and database
 def sell_equity(portfolio: Portfolio, ticker: str, str_shares: str, db: Database) -> None:
-    sell_shares = 0
-    if str_shares != "ALL":
-        sell_shares = float(str_shares)
-
-    sell_amount = 0
     for equity in portfolio.equities:
         if equity.ticker == ticker:
-            if str_shares == "ALL" or sell_shares >= equity.shares:
-                sell_amount = equity.price * equity.shares
-                portfolio.equities.remove(equity)
-            else:
-                sell_amount = equity.price * sell_shares
-                equity.shares = equity.shares - sell_shares
+            sell_shares = float(str_shares) if str_shares != "ALL" else equity.shares
 
+            sell_amount = equity.price * sell_shares
+            equity.shares = equity.shares - sell_shares
+
+            if equity.shares == 0:
+                portfolio.equities.remove(equity)
+
+            portfolio.trades.append(
+                Trade(ticker=ticker, price=equity.price, shares=-sell_shares, execution_time=datetime.now())
+            )
             portfolio.cash += round(sell_amount, 2)
 
             db.save_portfolio(portfolio)
