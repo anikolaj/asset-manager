@@ -30,6 +30,7 @@ class Database:
             valuation = Valuation(
                 current_value=portfolio_entity["valuation"]["currentValue"],
                 ytd=portfolio_entity["valuation"]["ytd"],
+                pnl=portfolio_entity["valuation"]["pnl"],
                 year_start_value=portfolio_entity["valuation"]["yearStartValue"],
                 current_year=portfolio_entity["valuation"]["currentYear"]
             )

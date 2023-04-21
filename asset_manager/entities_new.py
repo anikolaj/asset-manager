@@ -12,7 +12,8 @@ class Equity:
         price: float,
         weight: Optional[float] = None,
         year_start_price: Optional[float] = None,
-        ytd: Optional[float] = None
+        ytd: Optional[float] = None,
+        previous_day_price: Optional[float] = None
     ) -> None:
         self.ticker = ticker
         self.shares = shares
@@ -20,6 +21,7 @@ class Equity:
         self.price = price
         self.year_start_price = year_start_price
         self.ytd = ytd
+        self.previous_day_price = previous_day_price
 
     def to_dict(self) -> dict:
         return {
@@ -27,15 +29,24 @@ class Equity:
             "shares": self.shares,
             "weight": self.weight,
             "price": self.price,
+            "previousDayPrice": self.previous_day_price,
             "yearStartPrice": self.year_start_price,
             "ytd": self.ytd
         }
 
 
 class Valuation:
-    def __init__(self, current_value: float, ytd: float, year_start_value: float, current_year: datetime) -> None:
+    def __init__(
+        self,
+        current_value: float,
+        ytd: float,
+        pnl: float,
+        year_start_value: float,
+        current_year: datetime
+    ) -> None:
         self.current_value = current_value
         self.ytd = ytd
+        self.pnl = pnl
         self.year_start_value = year_start_value
         self.current_year = current_year
 
@@ -43,6 +54,7 @@ class Valuation:
         return {
             "currentValue": self.current_value,
             "ytd": self.ytd,
+            "pnl": self.pnl,
             "yearStartValue": self.year_start_value,
             "currentYear": self.current_year
         }

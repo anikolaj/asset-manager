@@ -61,7 +61,7 @@ class PortfolioAnalyzer:
         # equity details
         for eq in self.portfolio.equities:
             # get current stock price
-            eq.price = equity_service.get_equity_price(eq.ticker)
+            eq.price, eq.previous_day_price = equity_service.get_equity_prices(eq.ticker)
 
             # retrieve time interval prices for the stock
             self.ticker_to_timeseries[eq.ticker]["1M"] = equity_service.update_equity_details(eq, "1M")
@@ -82,6 +82,7 @@ class PortfolioAnalyzer:
             self.portfolio.valuation = Valuation(
                 current_value=0,
                 ytd=0,
+                pnl=0,
                 year_start_value=0,
                 current_year=self.current_year
             )
@@ -96,11 +97,17 @@ class PortfolioAnalyzer:
             if self.portfolio.valuation.year_start_value != 0
             else 0
         )
+        previous_day_total = self.compute_total_value_previous_day()
 
         ytd_percent = round(self.portfolio.valuation.ytd * 100, 2)
+        pnl = round(self.portfolio.value - previous_day_total, 2)
+        self.portfolio.valuation.pnl = pnl
 
         print(f"PORTFOLIO VALUE = {self.portfolio.value:,.2f} USD")
+        print("")
+
         print(f"YTD = {ytd_percent}%")
+        print(f"PnL (compared to previous day) = {'+' if pnl >= 0 else '-'}${abs(pnl)}")
         print("")
 
     # method computes the total value of all assets in the portfolio
@@ -116,6 +123,18 @@ class PortfolioAnalyzer:
 
         self.portfolio.value = total_value
         self.portfolio.valuation.current_value = total_value
+
+    def compute_total_value_previous_day(self) -> float:
+        # cash value
+        total_value = self.portfolio.cash
+
+        # equity value
+        for equity in self.portfolio.equities:
+            total_value += (equity.shares * equity.previous_day_price)
+
+        total_value = round(total_value, 2)
+
+        return total_value
 
     # method computes the year start value of all assets in the portfolio
     def compute_year_start_value(self) -> None:
