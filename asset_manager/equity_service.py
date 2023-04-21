@@ -19,10 +19,10 @@ def set_api_key(config: dict) -> None:
 
 
 # method retrieves the most recent price for the equity
-def get_equity_price(ticker: str) -> float:
+def get_equity_prices(ticker: str) -> tuple[float, float]:
     api_string = STOCK_QUOTE.format(ticker, FINNHUB_KEY)
     quote = requests.get(api_string).json()
-    return round(quote["c"], 2)
+    return (round(quote["c"], 2), round(quote["pc"], 2))
 
 
 # method retrieves the year start price for the equity
