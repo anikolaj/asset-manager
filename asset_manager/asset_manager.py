@@ -1,5 +1,6 @@
 import sys
 import yaml
+from datetime import datetime
 
 import asset_manager.equity_service as equity_service
 import asset_manager.treasury_service as treasury_service
@@ -10,8 +11,9 @@ from asset_manager.entities_new import Portfolio
 
 
 def main() -> None:
-    print("launching asset manager")
     print("")
+    print(f"SUMMARY DATE - {datetime.today().date()}")
+    print("---------------------------------")
 
     # load config and configure services
     config = load_config()
