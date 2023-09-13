@@ -67,29 +67,23 @@ def get_equity_year_start_price(eq: Equity) -> float:
 # method computes average daily return for the equity
 def update_equity_details(eq: Equity, time_interval: str) -> TimeSeriesDetails:
     now_time = datetime.datetime.today()
-    from_date = ""
-    to_date = ""
 
     to_date = now_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     from_date = to_date - datetime.timedelta(days=10*365)
-    resolution = "M"
 
-    current_directory = os.getcwd()
-    daily_directory = current_directory + "/asset_manager/data/equity/{}/"
-    daily_directory = daily_directory.format(eq.ticker)
+    ticker_directory = f"{os.getcwd()}/asset_manager/data/equity/{eq.ticker}"
 
-    if os.path.exists(daily_directory) is False:
-        os.makedirs(daily_directory)
-    os.chdir(daily_directory)
+    if os.path.exists(ticker_directory) is False:
+        os.makedirs(ticker_directory)
 
-    filename = f"{to_date.date()}.json"
+    filename = f"{ticker_directory}/{to_date.date()}.json"
     response = {}
 
     if os.path.exists(filename) is False:
         print("making request to finnhub.io api")
         from_unix = int(from_date.timestamp())
         to_unix = int(to_date.replace(day=2).timestamp())
-        api_string = STOCK_DATA.format(eq.ticker, resolution, from_unix, to_unix, FINNHUB_KEY)
+        api_string = STOCK_DATA.format(eq.ticker, "M", from_unix, to_unix, FINNHUB_KEY)
         response = requests.get(api_string).json()
 
         # save response to file in directory
@@ -98,8 +92,6 @@ def update_equity_details(eq: Equity, time_interval: str) -> TimeSeriesDetails:
     else:
         with open(filename, "r") as json_file:
             response = json.load(json_file)
-
-    os.chdir(current_directory)
 
     monthly_prices = response["c"]
     time_series = parse_prices_for_time_interval(monthly_prices, time_interval)
