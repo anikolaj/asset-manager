@@ -23,10 +23,10 @@ def compute_covariance_with_correlation_coefficient(x_data: list[float], y_data:
 	return covariance
 
 
-def calculate_expected_value(X: np.ndarray, p: np.ndarray) -> np.float64:
+def calculate_expected_value(X: np.ndarray, p: np.ndarray) -> float:
 	p_t = np.transpose(p)
 	expected_value = round(X @ p_t, 8)
-	return expected_value
+	return float(expected_value)
 
 
 def calculate_variance(C: np.ndarray, p: np.ndarray) -> float:

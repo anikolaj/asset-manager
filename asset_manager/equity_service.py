@@ -6,7 +6,7 @@ import json
 from scipy.stats import gmean
 
 from asset_manager.entities_new import Equity
-from asset_manager.objects import TimeSeriesDetails
+from asset_manager.objects import Interval, TimeSeriesDetails
 from asset_manager.constants import STOCK_DATA, STOCK_QUOTE
 
 FINNHUB_KEY = ""
@@ -65,7 +65,7 @@ def get_equity_year_start_price(eq: Equity) -> float:
 
 
 # method computes average daily return for the equity
-def update_equity_details(eq: Equity, time_interval: str) -> TimeSeriesDetails:
+def update_equity_details(eq: Equity, time_interval: Interval) -> TimeSeriesDetails:
     now_time = datetime.datetime.today()
 
     to_date = now_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -100,19 +100,19 @@ def update_equity_details(eq: Equity, time_interval: str) -> TimeSeriesDetails:
 
 
 # method will parse out the relevant time series array from the monthly stock prices
-def parse_prices_for_time_interval(monthly_prices: list, time_interval: str) -> list:
-    if time_interval == "1M":
+def parse_prices_for_time_interval(monthly_prices: list, time_interval: Interval) -> list:
+    if time_interval == Interval.MONTH:
         return monthly_prices
 
     split_value = 0
 
-    if time_interval == "1Q":
+    if time_interval == Interval.THREE_MONTH:
         split_value = 3
-    elif time_interval == "2Q":
+    elif time_interval == Interval.SIX_MONTH:
         split_value = 6
-    elif time_interval == "1Y":
+    elif time_interval == Interval.YEAR:
         split_value = 12
-    elif time_interval == "5Y":
+    elif time_interval == Interval.FIVE_YEAR:
         split_value = 60
     else:
         print("invalid time interval provided!")

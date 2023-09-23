@@ -5,7 +5,8 @@ import numpy as np
 
 import asset_manager.math_functions as mf
 import asset_manager.equity_service as equity_service
-from asset_manager.entities_new import Equity, Portfolio, Valuation
+from asset_manager.entities_new import Portfolio, Valuation
+from asset_manager.objects import Interval, TimeSeriesDetails
 
 
 class PortfolioAnalyzer:
@@ -14,34 +15,34 @@ class PortfolioAnalyzer:
         self.portfolio = p
         self.current_year = date.today().year
 
-        self.ticker_to_timeseries = defaultdict(defaultdict)
+        self.ticker_to_timeseries: dict[str, dict[Interval, TimeSeriesDetails]] = defaultdict(defaultdict)
 
-        self.W = {}
-        self.M = {}
-        self.C = {}
+        self.W: dict[Interval, np.ndarray] = defaultdict()
+        self.M: dict[Interval, np.ndarray] = defaultdict()
+        self.C: dict[Interval, np.ndarray] = defaultdict()
 
-        self.expected_return = {}
-        self.variance = {}
-        self.standard_deviation = {}
+        self.expected_return: dict[Interval, float] = defaultdict()
+        self.variance: dict[Interval, float] = defaultdict()
+        self.standard_deviation: dict[Interval, float] = defaultdict()
 
-        self.mvp = {}
+        self.mvp: dict[Interval, list] = defaultdict()
 
-        self.a = {}
-        self.b = {}
+        self.a: dict[Interval, np.ndarray] = defaultdict()
+        self.b: dict[Interval, np.ndarray] = defaultdict()
 
-        self.mvl_a = {}
-        self.mvl_b = {}
-        self.mvl_c = {}
+        self.mvl_a: dict[Interval, np.float64] = defaultdict()
+        self.mvl_b: dict[Interval, np.float64] = defaultdict()
+        self.mvl_c: dict[Interval, np.float64] = defaultdict()
 
     # method handles analyzing portoflio to calculate necessary metrics and feature vectors
     def analyze(self) -> None:
         # retrieve asset information
-        self.update_equities()
+        self.__update_equities()
 
         # compute portfolio total value
-        self.update_valuation()
+        self.__update_valuation()
 
-        for time_interval in ["1M", "1Q", "2Q", "1Y", "5Y"]:
+        for time_interval in Interval:
             # compute features w, m, and C
             self.compute_features(time_interval)
 
@@ -54,7 +55,7 @@ class PortfolioAnalyzer:
             self.compute_minimum_variance_line(time_interval)
 
     # method handles updating equity information
-    def update_equities(self) -> None:
+    def __update_equities(self) -> None:
         if self.portfolio.equities is None:
             return
 
@@ -64,11 +65,11 @@ class PortfolioAnalyzer:
             eq.price, eq.previous_day_price = equity_service.get_equity_prices(eq.ticker)
 
             # retrieve time interval prices for the stock
-            self.ticker_to_timeseries[eq.ticker]["1M"] = equity_service.update_equity_details(eq, "1M")
-            self.ticker_to_timeseries[eq.ticker]["1Q"] = equity_service.update_equity_details(eq, "1Q")
-            self.ticker_to_timeseries[eq.ticker]["2Q"] = equity_service.update_equity_details(eq, "2Q")
-            self.ticker_to_timeseries[eq.ticker]["1Y"] = equity_service.update_equity_details(eq, "1Y")
-            self.ticker_to_timeseries[eq.ticker]["5Y"] = equity_service.update_equity_details(eq, "5Y")
+            self.ticker_to_timeseries[eq.ticker][Interval.MONTH] = equity_service.update_equity_details(eq, Interval.MONTH)
+            self.ticker_to_timeseries[eq.ticker][Interval.THREE_MONTH] = equity_service.update_equity_details(eq, Interval.THREE_MONTH)
+            self.ticker_to_timeseries[eq.ticker][Interval.SIX_MONTH] = equity_service.update_equity_details(eq, Interval.SIX_MONTH)
+            self.ticker_to_timeseries[eq.ticker][Interval.YEAR] = equity_service.update_equity_details(eq, Interval.YEAR)
+            self.ticker_to_timeseries[eq.ticker][Interval.FIVE_YEAR] = equity_service.update_equity_details(eq, Interval.FIVE_YEAR)
 
             # get the year start price of the stock
             if eq.year_start_price == None or self.current_year != self.portfolio.valuation.current_year:
@@ -77,7 +78,7 @@ class PortfolioAnalyzer:
             eq.ytd = (eq.price / eq.year_start_price) - 1
 
     # method handles updating the valuation fields for the retrieved portfolio
-    def update_valuation(self) -> None:
+    def __update_valuation(self) -> None:
         if self.portfolio.valuation == None:
             self.portfolio.valuation = Valuation(
                 current_value=0,
@@ -146,7 +147,7 @@ class PortfolioAnalyzer:
         self.portfolio.valuation.year_start_value = start_value
 
     # method calculates the feature vectors used to describe the portfolio
-    def compute_features(self, time_interval: str) -> None:
+    def compute_features(self, time_interval: Interval) -> None:
         # print("TIME INTERVAL - " + time_interval)
 
         weights = []
@@ -196,11 +197,11 @@ class PortfolioAnalyzer:
         # print("c matrix = " + str(self.C[time_interval]))
 
     # method computes the expected return of the equities
-    def compute_expected_return(self, time_interval: str) -> None:
+    def compute_expected_return(self, time_interval: Interval) -> None:
         self.expected_return[time_interval] = mf.calculate_expected_value(self.M[time_interval], self.W[time_interval])
 
     # method computes the variances of the equities
-    def compute_variance(self, time_interval: str) -> None:
+    def compute_variance(self, time_interval: Interval) -> None:
         variance = None
         std_dev = None
 
@@ -213,7 +214,7 @@ class PortfolioAnalyzer:
         self.standard_deviation[time_interval] = std_dev
 
     # method computes the minimum variance portfolio in weights for the equities
-    def compute_minimum_variance_portfolio(self, time_interval: str) -> None:
+    def compute_minimum_variance_portfolio(self, time_interval: Interval) -> None:
         mvp = []
 
         if len(self.portfolio.equities) != 0 and self.C[time_interval].size != 0:
@@ -247,7 +248,7 @@ class PortfolioAnalyzer:
             print(f"{self.portfolio.equities[i].ticker} change in value = {value_change}")
 
     # method computes the parameters that describe the minimum variance line for the assets
-    def compute_minimum_variance_line(self, time_interval: str) -> None:
+    def compute_minimum_variance_line(self, time_interval: Interval) -> None:
         if self.C[time_interval].size == 0 or self.C[time_interval].size == 1:
             return
 

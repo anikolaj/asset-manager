@@ -7,6 +7,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles.fills import PatternFill
 
 import asset_manager.math_functions as mf
+from asset_manager.objects import Interval
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 
 YELLOW_BACKGROUND = PatternFill(fgColor=styles.colors.COLOR_INDEX[5], fill_type="solid")
@@ -100,10 +101,10 @@ class ExcelUtility:
         self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=2), "Expected Return", False, None)
 
         start_column = 3
-        for time in ["1M", "1Q", "2Q", "1Y", "5Y"]:
-            expected_return = self.portfolio_analyzer.expected_return[time]
+        for time_interval in [Interval.MONTH, Interval.THREE_MONTH, Interval.SIX_MONTH, Interval.YEAR, Interval.FIVE_YEAR]:
+            expected_return = self.portfolio_analyzer.expected_return[time_interval]
             self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=start_column), expected_return, False, None)
-            if time == "1Y":
+            if time_interval == Interval.YEAR:
                 self.monthly_expected_return_row = current_row
                 self.monthly_expected_return_column = start_column
 
@@ -115,10 +116,10 @@ class ExcelUtility:
         self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=2), "Standard Deviation", False, None)
 
         start_column = 3
-        for time in ["1M", "1Q", "2Q", "1Y", "5Y"]:
-            standard_deviation = self.portfolio_analyzer.standard_deviation[time]
+        for time_interval in [Interval.MONTH, Interval.THREE_MONTH, Interval.SIX_MONTH, Interval.YEAR, Interval.FIVE_YEAR]:
+            standard_deviation = self.portfolio_analyzer.standard_deviation[time_interval]
             self.set_cell(summary_sheet, summary_sheet.cell(row=current_row, column=start_column), standard_deviation, False, None)
-            if time == "1Y":
+            if time_interval == Interval.YEAR:
                 self.monthly_standard_deviation_row = current_row
                 self.monthly_standard_deviation_column = start_column
 
@@ -172,23 +173,23 @@ class ExcelUtility:
 
         # monthly statistics
         start_row = 2
-        self.write_time_statistics(stats_sheet, start_row, "1M")
+        self.write_time_statistics(stats_sheet, start_row, Interval.MONTH)
 
         # quarterly statistics
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_statistics(stats_sheet, start_row, "1Q")
+        self.write_time_statistics(stats_sheet, start_row, Interval.THREE_MONTH)
 
         # biannual statistics
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_statistics(stats_sheet, start_row, "2Q")
+        self.write_time_statistics(stats_sheet, start_row, Interval.SIX_MONTH)
 
         # yearly statistics
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_statistics(stats_sheet, start_row, "1Y")
+        self.write_time_statistics(stats_sheet, start_row, Interval.YEAR)
 
         # 5 year statistics
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_statistics(stats_sheet, start_row, "5Y")
+        self.write_time_statistics(stats_sheet, start_row, Interval.FIVE_YEAR)
 
     def write_mvp(self) -> None:
         mvp_sheet = self.workbook.create_sheet("MVP")
@@ -197,23 +198,23 @@ class ExcelUtility:
 
         # monthly minimum variance portfolio
         start_row = 2
-        self.write_time_mvp(mvp_sheet, start_row, "1M")
+        self.write_time_mvp(mvp_sheet, start_row, Interval.MONTH)
 
         # quarterly minimum variance portfolio
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_mvp(mvp_sheet, start_row, "1Q")
+        self.write_time_mvp(mvp_sheet, start_row, Interval.THREE_MONTH)
 
         # biannual minimum variance portfolio
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_mvp(mvp_sheet, start_row, "2Q")
+        self.write_time_mvp(mvp_sheet, start_row, Interval.SIX_MONTH)
 
         # yearly minimum variance portfolio
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_mvp(mvp_sheet, start_row, "1Y")
+        self.write_time_mvp(mvp_sheet, start_row, Interval.YEAR)
 
         # 5 year minimum variance portfolio
         start_row = start_row + len(self.portfolio_analyzer.portfolio.equities) + 2
-        self.write_time_mvp(mvp_sheet, start_row, "5Y")
+        self.write_time_mvp(mvp_sheet, start_row, Interval.FIVE_YEAR)
 
     def write_mvl(self) -> None:
         mvl_sheet = self.workbook.create_sheet("MVL")
@@ -229,7 +230,7 @@ class ExcelUtility:
         self.set_cell(mvl_sheet, mvl_sheet["C2"], "Inefficient Expected Return", False, None)
         mvl_sheet["C2"].border = styles.borders.Border(bottom=styles.borders.Side(style="thin"))
 
-        self.write_time_mvl(mvl_sheet, 3, "1Y")
+        self.write_time_mvl(mvl_sheet, 3, Interval.YEAR)
 
     def resize_column(self, worksheet: Worksheet, row: int, column: int) -> None:
         column_str = utils.get_column_letter(column)
@@ -238,15 +239,15 @@ class ExcelUtility:
             if worksheet.column_dimensions[column_str].width < len(str(worksheet.cell(row, column).value)):
                 worksheet.column_dimensions[column_str].width = len(str(worksheet.cell(row, column).value))
 
-    def write_time_statistics(self, worksheet: Worksheet, current_row: int, time_interval: str) -> None:
-        self.set_cell(worksheet, worksheet.cell(row=current_row, column=2), time_interval, True, None)
+    def write_time_statistics(self, worksheet: Worksheet, current_row: int, time_interval: Interval) -> None:
+        self.set_cell(worksheet, worksheet.cell(row=current_row, column=2), time_interval.value, True, None)
 
         current_row += 1
 
         self.write_ticker_statistics(worksheet, current_row, time_interval)
         self.write_correlation_matrix(worksheet, current_row, time_interval)
 
-    def write_ticker_statistics(self, worksheet: Worksheet, current_row: int, time_interval: str) -> None:
+    def write_ticker_statistics(self, worksheet: Worksheet, current_row: int, time_interval: Interval) -> None:
         self.set_cell(worksheet, worksheet.cell(row=current_row, column=3), "Ticker", True, None)
         self.set_cell(worksheet, worksheet.cell(row=current_row, column=4), "Expected Return", True, None)
         self.set_cell(worksheet, worksheet.cell(row=current_row, column=5), "Standard Deviation", True, None)
@@ -267,7 +268,7 @@ class ExcelUtility:
 
             ticker_row += 1
 
-    def write_correlation_matrix(self, worksheet: Worksheet, current_row: int, time_interval: str) -> None:
+    def write_correlation_matrix(self, worksheet: Worksheet, current_row: int, time_interval: Interval) -> None:
         if self.portfolio_analyzer.C[time_interval].size == 0:
             current_row += len(self.portfolio_analyzer.portfolio.equities)
             return
@@ -310,14 +311,14 @@ class ExcelUtility:
 
             current_column = start_column + 1
 
-    def write_time_mvp(self, worksheet: Worksheet, current_row: int, time_interval: str) -> None:
-        self.set_cell(worksheet, worksheet.cell(row=current_row, column=2), time_interval, True, None)
+    def write_time_mvp(self, worksheet: Worksheet, current_row: int, time_interval: Interval) -> None:
+        self.set_cell(worksheet, worksheet.cell(row=current_row, column=2), time_interval.value, True, None)
 
         current_row += 1
 
         self.write_ticker_mvp(worksheet, current_row, time_interval)
 
-    def write_ticker_mvp(self, worksheet: Worksheet, current_row: int, time_interval: str) -> None:
+    def write_ticker_mvp(self, worksheet: Worksheet, current_row: int, time_interval: Interval) -> None:
         if len(self.portfolio_analyzer.mvp[time_interval]) == 0:
             self.set_cell(worksheet, worksheet.cell(row=current_row, column=3), "Not Applied", True, None)
             return
