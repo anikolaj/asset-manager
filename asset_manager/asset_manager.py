@@ -11,10 +11,6 @@ from asset_manager.entities_new import Portfolio
 
 
 def main() -> None:
-    print("")
-    print(f"SUMMARY DATE - {datetime.today().date()}")
-    print("---------------------------------")
-
     # load config and configure services
     config = load_config()
     equity_service.set_api_key(config)
@@ -33,13 +29,17 @@ def main() -> None:
     if p is None:
         return
 
-    # retrieve treasury rates
-    treasury_service.get_all_treasury_rates()
+    print("")
+    print(f"SUMMARY DATE - {datetime.today().date()}")
+    print("---------------------------------")
 
     # construct portfolio analyzer and update details
     portfolio_analyzer = PortfolioAnalyzer(p)
     portfolio_analyzer.analyze()
     db.save_portfolio(portfolio_analyzer.portfolio)
+
+    # retrieve treasury rates
+    treasury_service.get_all_treasury_rates()
 
     # output cash
     log_cash(p)
@@ -61,9 +61,32 @@ def load_config() -> dict:
         return yaml.safe_load(config_file)
 
 
-# get portfolio or create a new one
 def retrieve_portfolio(db: Database) -> Portfolio:
-    portfolio_name = sys.argv[1]
+    """Retrieves portfolio specified from the command line
+
+    Args:
+        db (Database): database instance to query portfolios
+
+    Returns:
+        Portfolio: object representing the portfolio and its holdings
+    """
+
+    if len(sys.argv) > 1:
+        portfolio_name = sys.argv[1]
+    else:
+        # retrieve all portfolios names
+        portfolio_names = db.get_portfolio_names()
+
+        # display portfolios and wait for user to select
+        print("")
+        print("No portfolio name provided. Please enter a portfolio name from below list.")
+        for name in portfolio_names:
+            print(f"\t- {name}")
+
+        # assign selected portfolio to portfolio
+        portfolio_name = input("-> ")
+        print("")
+
     p = db.get_portfolio_by_name(portfolio_name)
 
     # validate if portfolio exists and create new one if desired

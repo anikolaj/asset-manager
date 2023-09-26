@@ -10,6 +10,16 @@ class Database:
         self.client = MongoClient(host=self.connection)
         self.db = self.client.get_database(database)
 
+    def get_portfolio_names(self) -> list[str]:
+        """Returns names of portfolios stored in database
+
+        Returns:
+            list[str]: list of portfolio names
+        """
+
+        portfolios = self.db.get_collection("portfolio")
+        return [p["name"] for p in portfolios.find()]
+
     def get_portfolio_by_name(self, portfolio_name: str) -> Portfolio:
         portfolios = self.db.get_collection("portfolio")
         portfolio_entity = portfolios.find_one({"name": portfolio_name})
