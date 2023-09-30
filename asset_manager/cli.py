@@ -33,6 +33,8 @@ class cli:
             self.rates()
         elif portfolio_action == "EXPORT":
             self.export(excel_utility)
+        elif portfolio_action == "TRADES":
+            self.trades()
         elif portfolio_action == "EXIT":
             return False
         elif portfolio_action == "HELP":
@@ -111,6 +113,14 @@ class cli:
         excel_utility.generate_portfolio_workbook()
         print("")
 
+    # ACTION = TRADES
+    def trades(self) -> None:
+        trades = sorted(self.portfolio_analyzer.portfolio.trades, key=lambda trade: trade.execution_time, reverse=True)
+        for i in range(min(len(trades), 10)):
+            print(f"{'BUY' if trades[i].shares >= 0 else 'SELL'} \t {trades[i].ticker} \t {abs(trades[i].shares)} SHARES \t @ ${trades[i].price} \t {trades[i].execution_time}")
+
+        print("")
+
     # ACTION = HELP
     def help(self) -> None:
         print("Portfolio Commands" + "\t\t" + "Definition")
@@ -120,4 +130,5 @@ class cli:
         print("- REWEIGHT [TIME_INTERVAL]" + "\t" + "Adjusts share amounts to achieve minimum variance portfolio for TIME_INTERVAL (daily, weekly, monthly)")
         print("- RATES" + "\t\t\t\t" + "Outputs the current US Treasury rates")
         print("- EXPORT" + "\t\t\t" + "Writes portfolio data to local Excel workbook")
+        print("- TRADES" + "\t\t\t" + "Outputs trade history of the portfolio")
         print("")
