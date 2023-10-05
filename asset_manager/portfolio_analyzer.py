@@ -98,10 +98,9 @@ class PortfolioAnalyzer:
             if self.portfolio.valuation.year_start_value != 0
             else 0
         )
-        previous_day_total = self.compute_total_value_previous_day()
 
         ytd_percent = round(self.portfolio.valuation.ytd * 100, 2)
-        pnl = round(self.portfolio.value - previous_day_total, 2)
+        pnl = self.compute_pnl()
         self.portfolio.valuation.pnl = pnl
 
         print(f"PORTFOLIO VALUE = {self.portfolio.value:,.2f} USD")
@@ -125,6 +124,7 @@ class PortfolioAnalyzer:
         self.portfolio.value = total_value
         self.portfolio.valuation.current_value = total_value
 
+    # method computes the total value of all assets in the portfolio on the previous day
     def compute_total_value_previous_day(self) -> float:
         # cash value
         total_value = self.portfolio.cash
@@ -145,6 +145,11 @@ class PortfolioAnalyzer:
 
         start_value = round(start_value, 8)
         self.portfolio.valuation.year_start_value = start_value
+
+    # method handles calculating pnl for the portfolio
+    def compute_pnl(self) -> float:
+        previous_day_total = self.compute_total_value_previous_day()
+        return round(self.portfolio.value - previous_day_total, 2)
 
     # method calculates the feature vectors used to describe the portfolio
     def compute_features(self, time_interval: Interval) -> None:
