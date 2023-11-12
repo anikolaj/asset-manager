@@ -1,7 +1,7 @@
 from bson import ObjectId
 from pymongo import MongoClient
 
-from asset_manager.entities_new import Equity, Portfolio, Trade, Valuation
+from asset_manager.entities_new import Equity, Lot, Portfolio, Trade, Valuation
 
 
 class Database:
@@ -35,17 +35,9 @@ class Database:
         for trade_entity in portfolio_entity["trades"]:
             trades.append(self.__convert_entity_to_trade(trade_entity))
 
-        valuation = None
-        if portfolio_entity["valuation"] is not None:
-            valuation = Valuation(
-                current_value=portfolio_entity["valuation"]["currentValue"],
-                ytd=portfolio_entity["valuation"]["ytd"],
-                pnl=portfolio_entity["valuation"]["pnl"],
-                year_start_value=portfolio_entity["valuation"]["yearStartValue"],
-                current_year=portfolio_entity["valuation"]["currentYear"]
-            )
+        valuation = self.__convert_entity_to_valuation(portfolio_entity["valuation"])
 
-        portfolio = Portfolio(
+        return Portfolio(
             id=portfolio_entity["_id"],
             name=portfolio_entity["name"],
             value=portfolio_entity["value"],
@@ -54,8 +46,6 @@ class Database:
             trades=trades,
             valuation=valuation
         )
-
-        return portfolio
 
     def create_portfolio(self, portfolio_name: str) -> Portfolio:
         portfolio = Portfolio(
@@ -92,7 +82,9 @@ class Database:
             weight=equity_entity["weight"],
             price=equity_entity["price"],
             year_start_price=equity_entity["yearStartPrice"],
-            ytd=equity_entity["ytd"]
+            ytd=equity_entity["ytd"],
+            previous_day_price=equity_entity["previousDayPrice"],
+            lots=[self.__convert_entity_to_lot(lot) for lot in equity_entity["lots"]]
         )
 
     def __convert_entity_to_trade(self, trade_entity: dict) -> Trade:
@@ -101,4 +93,21 @@ class Database:
             price=trade_entity["price"],
             shares=trade_entity["shares"],
             execution_time=trade_entity["executionTime"]
+        )
+
+    def __convert_entity_to_valuation(self, valuation_entity: dict) -> Valuation:
+        return Valuation(
+            current_value=valuation_entity["currentValue"],
+            ytd=valuation_entity["ytd"],
+            pnl=valuation_entity["pnl"],
+            realized_pnl=valuation_entity["realizedPnl"],
+            year_start_value=valuation_entity["yearStartValue"],
+            current_year=valuation_entity["currentYear"]
+        )
+
+    def __convert_entity_to_lot(self, lot_entity: dict) -> Lot:
+        return Lot(
+            shares=lot_entity["shares"],
+            price=lot_entity["price"],
+            execution_time=lot_entity["executionTime"]
         )
