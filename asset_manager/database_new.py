@@ -1,3 +1,4 @@
+from datetime import date
 from bson import ObjectId
 from pymongo import MongoClient
 
@@ -54,7 +55,15 @@ class Database:
             value=0,
             cash=0,
             equities=[],
-            trades=[]
+            trades=[],
+            valuation=Valuation(
+                current_value=0,
+                ytd=0,
+                pnl=0,
+                realized_pnl=0,
+                year_start_value=0,
+                current_year=date.today().year
+            )
         )
 
         portfolios = self.db.get_collection("portfolio")
