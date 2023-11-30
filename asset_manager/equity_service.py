@@ -26,12 +26,12 @@ def get_equity_prices(ticker: str) -> tuple[float, float]:
 
 
 # method retrieves the year start price for the equity
-def get_equity_year_start_price(eq: Equity) -> float:
-    print(f"getting year start price - {eq.ticker}")
+def get_equity_year_start_price(ticker: str) -> float:
+    print(f"getting year start price - {ticker}")
     current_year = datetime.datetime.today().year
 
     # check if year start already exists for the given ticker
-    year_start_file = f"./asset_manager/data/equity/{eq.ticker}/year_start.json"
+    year_start_file = f"./asset_manager/data/equity/{ticker}/year_start.json"
 
     if os.path.exists(year_start_file):
         with open(year_start_file, "r") as data_file:
@@ -45,7 +45,7 @@ def get_equity_year_start_price(eq: Equity) -> float:
     first_trading_day = get_first_trading_day_of_year()
     unix_time = int(first_trading_day.timestamp())
 
-    api_string = STOCK_DATA.format(eq.ticker, "D", unix_time, unix_time, FINNHUB_KEY)
+    api_string = STOCK_DATA.format(ticker, "D", unix_time, unix_time, FINNHUB_KEY)
     response = requests.get(api_string).json()
 
     # need to handle case when first trading day of the year does not have quote for given equity

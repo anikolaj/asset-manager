@@ -73,7 +73,7 @@ class PortfolioAnalyzer:
 
             # get the year start price of the stock
             if eq.year_start_price == None or self.current_year != self.portfolio.valuation.current_year:
-                eq.year_start_price = equity_service.get_equity_year_start_price(eq)
+                eq.year_start_price = equity_service.get_equity_year_start_price(eq.ticker)
 
             eq.ytd = (eq.price / eq.year_start_price) - 1
 
