@@ -2,8 +2,10 @@ import datetime
 import requests
 import statistics
 import os
+import pandas as pd
 import json
 from scipy.stats import gmean
+from yahooquery import Ticker
 
 from asset_manager.entities_new import Equity
 from asset_manager.objects import Interval, TimeSeriesDetails
@@ -18,11 +20,18 @@ def set_api_key(config: dict) -> None:
     FINNHUB_KEY = config["finnhub"]["key"]
 
 
-# method retrieves the most recent price for the equity
-def get_equity_prices(ticker: str) -> tuple[float, float]:
+# method retrieves the most recent price for the equity using finnhub api
+def get_equity_prices_finnhub(ticker: str) -> tuple[float, float]:
     api_string = STOCK_QUOTE.format(ticker, FINNHUB_KEY)
     quote = requests.get(api_string).json()
     return (round(quote["c"], 2), round(quote["pc"], 2))
+
+
+# method retrieves the most recent price for the equity using yahoo finance
+def get_equity_prices_yahoo(ticker: str) -> tuple[float, float]:
+    stock = Ticker(ticker)
+    price_info = stock.price[ticker]
+    return (round(price_info["regularMarketPrice"], 2), round(price_info["regularMarketPreviousClose"], 2))
 
 
 # method retrieves the year start price for the equity
@@ -64,8 +73,8 @@ def get_equity_year_start_price(ticker: str) -> float:
     return year_start_price
 
 
-# method computes average daily return for the equity
-def update_equity_details(eq: Equity, time_interval: Interval) -> TimeSeriesDetails:
+# method computes average daily return for the equity using finnhub api
+def update_equity_details_finnhub(eq: Equity, time_interval: Interval) -> TimeSeriesDetails:
     now_time = datetime.datetime.today()
 
     to_date = now_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -94,6 +103,36 @@ def update_equity_details(eq: Equity, time_interval: Interval) -> TimeSeriesDeta
             response = json.load(json_file)
 
     monthly_prices = response["c"]
+    time_series = parse_prices_for_time_interval(monthly_prices, time_interval)
+
+    return calculate_time_series_details(time_series)
+
+
+# method computes average daily return for the equity using yahoo finance
+def update_equity_details_yahoo(eq: Equity, time_interval: Interval) -> TimeSeriesDetails:
+    now_time = datetime.datetime.today()
+
+    to_date = now_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    from_date = to_date - datetime.timedelta(days=10*365)
+
+    ticker_directory = f"{os.getcwd()}/asset_manager/data/equity/{eq.ticker}"
+
+    if os.path.exists(ticker_directory) is False:
+        os.makedirs(ticker_directory)
+
+    filename = f"{ticker_directory}/{to_date.date()}.csv"
+
+    if os.path.exists(filename) is False:
+        print("making request to yahoofinance api")
+        stock = Ticker(eq.ticker)
+        price_data = stock.history(start=from_date.date(), end=to_date.date(), interval="1mo")
+
+        # save response to file in directory
+        price_data.to_csv(filename)
+    else:
+        price_data = pd.read_csv(filename)
+
+    monthly_prices = list(price_data["close"])
     time_series = parse_prices_for_time_interval(monthly_prices, time_interval)
 
     return calculate_time_series_details(time_series)

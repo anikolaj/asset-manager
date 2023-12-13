@@ -62,14 +62,14 @@ class PortfolioAnalyzer:
         # equity details
         for eq in self.portfolio.equities:
             # get current stock price
-            eq.price, eq.previous_day_price = equity_service.get_equity_prices(eq.ticker)
+            eq.price, eq.previous_day_price = equity_service.get_equity_prices_yahoo(eq.ticker)
 
             # retrieve time interval prices for the stock
-            self.ticker_to_timeseries[eq.ticker][Interval.MONTH] = equity_service.update_equity_details(eq, Interval.MONTH)
-            self.ticker_to_timeseries[eq.ticker][Interval.THREE_MONTH] = equity_service.update_equity_details(eq, Interval.THREE_MONTH)
-            self.ticker_to_timeseries[eq.ticker][Interval.SIX_MONTH] = equity_service.update_equity_details(eq, Interval.SIX_MONTH)
-            self.ticker_to_timeseries[eq.ticker][Interval.YEAR] = equity_service.update_equity_details(eq, Interval.YEAR)
-            self.ticker_to_timeseries[eq.ticker][Interval.FIVE_YEAR] = equity_service.update_equity_details(eq, Interval.FIVE_YEAR)
+            self.ticker_to_timeseries[eq.ticker][Interval.MONTH] = equity_service.update_equity_details_yahoo(eq, Interval.MONTH)
+            self.ticker_to_timeseries[eq.ticker][Interval.THREE_MONTH] = equity_service.update_equity_details_yahoo(eq, Interval.THREE_MONTH)
+            self.ticker_to_timeseries[eq.ticker][Interval.SIX_MONTH] = equity_service.update_equity_details_yahoo(eq, Interval.SIX_MONTH)
+            self.ticker_to_timeseries[eq.ticker][Interval.YEAR] = equity_service.update_equity_details_yahoo(eq, Interval.YEAR)
+            self.ticker_to_timeseries[eq.ticker][Interval.FIVE_YEAR] = equity_service.update_equity_details_yahoo(eq, Interval.FIVE_YEAR)
 
             # get the year start price of the stock
             if eq.year_start_price == None or self.current_year != self.portfolio.valuation.current_year:
