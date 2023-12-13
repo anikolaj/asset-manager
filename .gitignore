@@ -92,6 +92,7 @@ ENV/
 # Project specific
 *.xlsx
 asset_manager/data/**/*.json
+asset_manager/data/**/*.csv
 
 # VS Code
 .vscode/**
