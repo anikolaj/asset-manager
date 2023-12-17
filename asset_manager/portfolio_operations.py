@@ -9,7 +9,7 @@ from asset_manager.database_new import Database
 def trade_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database) -> None:
     now = datetime.now()
     shares = round(float(shares), 4)
-    price, previous_day_price = equity_service.get_equity_prices(ticker)
+    price, previous_day_price = equity_service.get_equity_prices_yahoo(ticker)
 
     if (price * shares) > portfolio.cash:
         raise ValueError("cash balance is too low to purchase this block of assets")
