@@ -34,8 +34,8 @@ def get_equity_prices_yahoo(ticker: str) -> tuple[float, float]:
     return (round(price_info["regularMarketPrice"], 2), round(price_info["regularMarketPreviousClose"], 2))
 
 
-# method retrieves the year start price for the equity
-def get_equity_year_start_price(ticker: str) -> float:
+# method retrieves the year start price for the equity using finnhub api
+def get_equity_year_start_price_finnhub(ticker: str) -> float:
     print(f"getting year start price - {ticker}")
     current_year = datetime.datetime.today().year
 
@@ -71,6 +71,16 @@ def get_equity_year_start_price(ticker: str) -> float:
         json.dump(year_start_data, data_file)
 
     return year_start_price
+
+# method retrieves the year start price for the equity using yahoo finance
+def get_equity_year_start_price_yahoo(ticker: str) -> float:
+    print(f"getting year start price - {ticker}")
+    current_year = datetime.datetime.today().year
+
+    stock = Ticker(ticker)
+    stock_history = stock.history(start=f"{current_year}-01-01", end=f"{current_year}-01-07")
+
+    return stock_history.iloc[0]["open"]
 
 
 # method computes average daily return for the equity using finnhub api

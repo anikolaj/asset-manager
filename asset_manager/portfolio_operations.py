@@ -24,7 +24,7 @@ def trade_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database) -
                 shares=shares,
                 price=price,
                 previous_day_price=previous_day_price,
-                year_start_price=equity_service.get_equity_year_start_price(ticker),
+                year_start_price=equity_service.get_equity_year_start_price_yahoo(ticker),
                 lots=[Lot(shares=shares, price=price, execution_time=now)]
             )
         )
