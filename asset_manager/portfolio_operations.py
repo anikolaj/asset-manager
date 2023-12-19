@@ -1,15 +1,16 @@
 from datetime import datetime
 
-from asset_manager import equity_service, pnl
+from asset_manager import pnl
 from asset_manager.entities_new import Equity, Lot, Portfolio, Trade
+from asset_manager.equity_interface import EquityService
 from asset_manager.database_new import Database
 
 
 # method handles trading the equity in the portfolio and saving to database
-def trade_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database) -> None:
+def trade_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database, equity_service: EquityService) -> None:
     now = datetime.now()
     shares = round(float(shares), 4)
-    price, previous_day_price = equity_service.get_equity_prices_yahoo(ticker)
+    price, previous_day_price = equity_service.get_equity_prices(ticker)
 
     if (price * shares) > portfolio.cash:
         raise ValueError("cash balance is too low to purchase this block of assets")
@@ -24,7 +25,7 @@ def trade_equity(portfolio: Portfolio, ticker: str, shares: str, db: Database) -
                 shares=shares,
                 price=price,
                 previous_day_price=previous_day_price,
-                year_start_price=equity_service.get_equity_year_start_price_yahoo(ticker),
+                year_start_price=equity_service.get_equity_year_start_price(ticker),
                 lots=[Lot(shares=shares, price=price, execution_time=now)]
             )
         )

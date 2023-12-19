@@ -1,14 +1,16 @@
 import asset_manager.rates as rates
 from asset_manager.database_new import Database
+from asset_manager.equity_interface import EquityService
 from asset_manager.excel_utility import ExcelUtility
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 from asset_manager.portfolio_operations import deposit, trade_equity
 
 
 class cli:
-    def __init__(self, portfolio_analyzer: PortfolioAnalyzer, db: Database) -> None:
+    def __init__(self, portfolio_analyzer: PortfolioAnalyzer, db: Database, equity_service: EquityService) -> None:
         self.portfolio_analyzer = portfolio_analyzer
         self.db = db
+        self.equity_service = equity_service
 
     def run_prompt(self) -> None:
         continue_prompt = True
@@ -67,7 +69,7 @@ class cli:
             return
 
         try:
-            trade_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, shares=shares, db=self.db)
+            trade_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, shares=shares, db=self.db, equity_service=self.equity_service)
             self.portfolio_analyzer.analyze()
         except Exception as e:
             print("Exception occurred while trying to buy asset. Please view below")
@@ -91,7 +93,7 @@ class cli:
             else:
                 raise Exception("Equity not found in portfolio, but 'ALL' shares was specified.")
 
-        trade_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, shares=-shares, db=self.db)
+        trade_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, shares=-shares, db=self.db, equity_service=self.equity_service)
         self.portfolio_analyzer.analyze()
 
     # ACTION = DEPOSIT
