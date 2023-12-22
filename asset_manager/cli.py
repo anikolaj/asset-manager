@@ -61,12 +61,12 @@ class cli:
 
     # ACTION = BUY
     def buy(self, portfolio_command: str) -> None:
-        if len(portfolio_command) == 3:
-            ticker = portfolio_command[1]
-            shares = portfolio_command[2]
-        else:
+        if len(portfolio_command) != 3:
             print("INVALID COMMAND FORMAT - MUST BE \"BUY [TICKER] [SHARES]\"")
             return
+
+        ticker = portfolio_command[1]
+        shares = round(float(portfolio_command[2]), 4)
 
         try:
             trade_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, shares=shares, db=self.db, equity_service=self.equity_service)
@@ -77,13 +77,13 @@ class cli:
 
     # ACTION = SELL
     def sell(self, portfolio_command: str) -> None:
-        if len(portfolio_command) == 3:
-            ticker = portfolio_command[1]
-            shares = portfolio_command[2]
-        else:
+        if len(portfolio_command) != 3:
             print("INVALID COMMAND FORMAT - MUST BE \"SELL [TICKER] [SHARES]\"")
             print("SHARES = numeric value or \"ALL\"")
             return
+
+        ticker = portfolio_command[1]
+        shares = portfolio_command[2]
 
         if shares == "ALL":
             equity = next((eq for eq in self.portfolio_analyzer.portfolio.equities if eq.ticker == ticker), None)
@@ -92,6 +92,8 @@ class cli:
                 shares = equity.shares
             else:
                 raise Exception("Equity not found in portfolio, but 'ALL' shares was specified.")
+
+        shares = round(float(shares), 4)
 
         trade_equity(portfolio=self.portfolio_analyzer.portfolio, ticker=ticker, shares=-shares, db=self.db, equity_service=self.equity_service)
         self.portfolio_analyzer.analyze()
