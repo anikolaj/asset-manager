@@ -1,13 +1,14 @@
 import sys
 import yaml
 from datetime import datetime
+from typing import Optional
 
 import asset_manager.treasury_service as treasury_service
-from asset_manager.database_new import Database
 from asset_manager.cli import cli
+from asset_manager.database_new import Database
+from asset_manager.entities_new import Portfolio
 from asset_manager.equity_interface import YahooService
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
-from asset_manager.entities_new import Portfolio
 
 
 def main() -> None:
@@ -22,7 +23,7 @@ def main() -> None:
         user=config["mongodb"]["username"],
         password=config["mongodb"]["password"],
         database=config["mongodb"]["database"],
-        cluster=config["mongodb"]["cluster"]
+        cluster=config["mongodb"]["cluster"],
     )
 
     # get portfolio specified on command line
@@ -48,21 +49,25 @@ def main() -> None:
     # output equities
     log_equities(p)
 
-    # output treasury rates
-    # log_treasuries()
-
-    # add call to method to prompt CLI for executing portfolio commands
-    portfolio_prompt = cli(portfolio_analyzer=portfolio_analyzer, db=db, equity_service=equity_service)
+    # prompt CLI for executing portfolio commands
+    portfolio_prompt = cli(
+        portfolio_analyzer=portfolio_analyzer, db=db, equity_service=equity_service
+    )
     portfolio_prompt.run_prompt()
 
 
-# import credentials to connect to external services
 def load_config() -> dict:
+    """Loads app configuration stored in yml file
+
+    Returns:
+        dict: dictionary object representing the config file
+    """
+
     with open("asset_manager/config.yml", "r") as config_file:
         return yaml.safe_load(config_file)
 
 
-def retrieve_portfolio(db: Database) -> Portfolio:
+def retrieve_portfolio(db: Database) -> Optional[Portfolio]:
     """Retrieves portfolio specified from the command line
 
     Args:
@@ -80,7 +85,9 @@ def retrieve_portfolio(db: Database) -> Portfolio:
 
         # display portfolios and wait for user to select
         print("")
-        print("No portfolio name provided. Please enter a portfolio name from below list.")
+        print(
+            "No portfolio name provided. Please enter a portfolio name from below list."
+        )
         for name in portfolio_names:
             print(f"\t- {name}")
 
@@ -92,32 +99,52 @@ def retrieve_portfolio(db: Database) -> Portfolio:
 
     # validate if portfolio exists and create new one if desired
     if p is None:
-        create_new = input(f"{portfolio_name} does not exist. Would you like to create one with this name (y/n) = ")
+        create_new = input(
+            f"{portfolio_name} does not exist. Would you like to create one with this name (y/n) = "
+        )
         if create_new == "y":
             p = db.create_portfolio(portfolio_name)
         else:
             print("....exiting application")
-            return
+            return None
 
     print(f"PORTFOLIO ID - {p.id}")
 
     return p
 
 
-# method handles logging cash balance in the specified portfolio
 def log_cash(p: Portfolio) -> None:
+    """Outputs cash balance of the portfolio
+
+    Args:
+        p (Portfolio): object representing the portfolio and its holdings
+    """
+
     print("- CASH")
     print(f"{p.cash:,.2f} USD")
     print("")
 
 
-# method handles logging equities in the specified portfolio
 def log_equities(p: Portfolio) -> None:
+    """Outputs price, shares, and ytd return of the equities in the portfolio
+
+    Args:
+        p (Portfolio): object representing the portfolio and its holdings
+    """
+
     print("- EQUITIES")
     if len(p.equities) != 0:
         print("ticker" + "\t" + "price" + "\t" + "shares" + "\t" + "ytd")
         for eq in p.equities:
-            print(eq.ticker + "\t" + str(eq.price) + "\t" + str(eq.shares) + "\t" + f"{str(round(eq.ytd * 100, 2))}%")
+            print(
+                eq.ticker
+                + "\t"
+                + str(eq.price)
+                + "\t"
+                + str(eq.shares)
+                + "\t"
+                + f"{str(round(eq.ytd * 100, 2))}%"
+            )
     else:
         print("no equities in portfolio")
 
