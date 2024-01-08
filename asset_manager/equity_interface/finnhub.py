@@ -5,7 +5,10 @@ import requests
 
 from asset_manager.entities_new import Equity
 from asset_manager.equity_interface import EquityService
-from asset_manager.equity_interface.helpers import calculate_time_series_details, parse_prices_for_time_interval
+from asset_manager.equity_interface.helpers import (
+    calculate_time_series_details,
+    parse_prices_for_time_interval,
+)
 from asset_manager.objects import Interval, TimeSeriesDetails
 
 
@@ -41,12 +44,16 @@ class FinnhubService(EquityService):
         first_trading_day = self.__get_first_trading_day_of_year()
         unix_time = int(first_trading_day.timestamp())
 
-        api_string = self.__STOCK_DATA.format(ticker, "D", unix_time, unix_time, self.__key)
+        api_string = self.__STOCK_DATA.format(
+            ticker, "D", unix_time, unix_time, self.__key
+        )
         response = requests.get(api_string).json()
 
         # need to handle case when first trading day of the year does not have quote for given equity
         if len(response["c"]) == 0:
-            year_start_price = float(input("ERROR retrieving year strice price, please manually enter = "))
+            year_start_price = float(
+                input("ERROR retrieving year strice price, please manually enter = ")
+            )
         else:
             year_start_price = response["c"][0]
 
@@ -59,11 +66,13 @@ class FinnhubService(EquityService):
 
         return year_start_price
 
-    def update_equity_details(self, eq: Equity, time_interval: Interval) -> TimeSeriesDetails:
+    def update_equity_details(
+        self, eq: Equity, time_interval: Interval
+    ) -> TimeSeriesDetails:
         now_time = datetime.datetime.today()
 
         to_date = now_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        from_date = to_date - datetime.timedelta(days=10*365)
+        from_date = to_date - datetime.timedelta(days=10 * 365)
 
         ticker_directory = f"{os.getcwd()}/asset_manager/data/equity/{eq.ticker}"
 
@@ -77,7 +86,9 @@ class FinnhubService(EquityService):
             print("making request to finnhub.io api")
             from_unix = int(from_date.timestamp())
             to_unix = int(to_date.replace(day=2).timestamp())
-            api_string = self.__STOCK_DATA.format(eq.ticker, "M", from_unix, to_unix, self.__key)
+            api_string = self.__STOCK_DATA.format(
+                eq.ticker, "M", from_unix, to_unix, self.__key
+            )
             response = requests.get(api_string).json()
 
             # save response to file in directory
@@ -96,11 +107,15 @@ class FinnhubService(EquityService):
         with open("asset_manager/global_data.json", "r") as data_file:
             global_data = json.load(data_file)
 
-        first_trading_day = datetime.datetime.fromisoformat(global_data["firstTradingDay"])
+        first_trading_day = datetime.datetime.fromisoformat(
+            global_data["firstTradingDay"]
+        )
         today_date = datetime.datetime.today().date()
 
         if first_trading_day.year != today_date.year:
-            first_day = input("Please enter the first trading of the current year (YYYY-MM-DD) = ")
+            first_day = input(
+                "Please enter the first trading of the current year (YYYY-MM-DD) = "
+            )
             first_trading_day = datetime.datetime.fromisoformat(first_day)
             global_data["firstTradingDay"] = first_day
 
