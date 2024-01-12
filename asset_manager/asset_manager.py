@@ -3,20 +3,20 @@ import yaml
 from datetime import datetime
 from typing import Optional
 
-import asset_manager.treasury_service as treasury_service
 from asset_manager.cli import cli
 from asset_manager.database_new import Database
 from asset_manager.entities_new import Portfolio
 from asset_manager.equity_interface import YahooService
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
+from asset_manager.treasury_interface import Fred
 
 
 def main() -> None:
     # load config and configure services
     config = load_config()
-    treasury_service.set_api_key(config)
 
     equity_service = YahooService()
+    treasury_service = Fred(config)
 
     # establish database connection
     db = Database(
@@ -40,9 +40,6 @@ def main() -> None:
     portfolio_analyzer.analyze()
     db.save_portfolio(portfolio_analyzer.portfolio)
 
-    # retrieve treasury rates
-    treasury_service.get_all_treasury_rates()
-
     # output cash
     log_cash(p)
 
@@ -51,7 +48,10 @@ def main() -> None:
 
     # prompt CLI for executing portfolio commands
     portfolio_prompt = cli(
-        portfolio_analyzer=portfolio_analyzer, db=db, equity_service=equity_service
+        portfolio_analyzer=portfolio_analyzer,
+        db=db,
+        equity_service=equity_service,
+        treasury_service=treasury_service,
     )
     portfolio_prompt.run_prompt()
 

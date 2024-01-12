@@ -1,10 +1,10 @@
-import asset_manager.rates as rates
 from asset_manager.database_new import Database
 from asset_manager.equity_interface import EquityService
 from asset_manager.excel_utility import ExcelUtility
 from asset_manager.objects import Interval
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 from asset_manager.portfolio_operations import deposit, trade_equity
+from asset_manager.treasury_interface import TreasuryService
 
 
 class cli:
@@ -13,10 +13,12 @@ class cli:
         portfolio_analyzer: PortfolioAnalyzer,
         db: Database,
         equity_service: EquityService,
+        treasury_service: TreasuryService,
     ) -> None:
         self.portfolio_analyzer = portfolio_analyzer
         self.db = db
         self.equity_service = equity_service
+        self.treasury_service = treasury_service
 
     def run_prompt(self) -> None:
         """Runs the cli prompt for the application"""
@@ -177,13 +179,13 @@ class cli:
         """Outputs US treasury rates provided by FRED"""
 
         print("symbol" + "\t\t" + "rate")
-        print("US 30 Year" + "\t" + str(rates.UST30Y) + "%")
-        print("US 10 Year" + "\t" + str(rates.UST10Y) + "%")
-        print("US 5 Year" + "\t" + str(rates.UST5Y) + "%")
-        print("US 1 Year" + "\t" + str(rates.UST1Y) + "%")
-        print("US 6 Month" + "\t" + str(rates.UST6MO) + "%")
-        print("US 3 Month" + "\t" + str(rates.UST3MO) + "%")
-        print("US 1 Month" + "\t" + str(rates.UST1MO) + "%")
+        print("US 30 Year" + "\t" + str(self.treasury_service.UST30Y) + "%")
+        print("US 10 Year" + "\t" + str(self.treasury_service.UST10Y) + "%")
+        print("US 5 Year" + "\t" + str(self.treasury_service.UST5Y) + "%")
+        print("US 1 Year" + "\t" + str(self.treasury_service.UST1Y) + "%")
+        print("US 6 Month" + "\t" + str(self.treasury_service.UST6MO) + "%")
+        print("US 3 Month" + "\t" + str(self.treasury_service.UST3MO) + "%")
+        print("US 1 Month" + "\t" + str(self.treasury_service.UST1MO) + "%")
         print("")
 
     def export(self, excel_utility: ExcelUtility) -> None:
