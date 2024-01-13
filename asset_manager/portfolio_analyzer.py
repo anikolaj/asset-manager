@@ -44,6 +44,10 @@ class PortfolioAnalyzer:
         self.update_valuation()
 
         for time_interval in Interval:
+            # skipping five year interval
+            if time_interval == Interval.FIVE_YEAR:
+                continue
+
             # compute weight, return, and covariance features
             self.compute_features(time_interval)
 
@@ -79,9 +83,9 @@ class PortfolioAnalyzer:
             self.ticker_to_timeseries[eq.ticker][
                 Interval.YEAR
             ] = self.equity_service.update_equity_details(eq, Interval.YEAR)
-            self.ticker_to_timeseries[eq.ticker][
-                Interval.FIVE_YEAR
-            ] = self.equity_service.update_equity_details(eq, Interval.FIVE_YEAR)
+            # self.ticker_to_timeseries[eq.ticker][
+            #     Interval.FIVE_YEAR
+            # ] = self.equity_service.update_equity_details(eq, Interval.FIVE_YEAR)
 
             # get the year start price of the stock
             if (
