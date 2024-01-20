@@ -7,7 +7,13 @@ from asset_manager.database_new import Database
 
 
 # method handles trading the equity in the portfolio and saving to database
-def trade_equity(portfolio: Portfolio, ticker: str, shares: float, db: Database, equity_service: EquityService) -> None:
+def trade_equity(
+    portfolio: Portfolio,
+    ticker: str,
+    shares: float,
+    db: Database,
+    equity_service: EquityService,
+) -> None:
     now = datetime.now()
     price, previous_day_price = equity_service.get_equity_prices(ticker)
 
@@ -25,7 +31,7 @@ def trade_equity(portfolio: Portfolio, ticker: str, shares: float, db: Database,
                 price=price,
                 previous_day_price=previous_day_price,
                 year_start_price=equity_service.get_equity_year_start_price(ticker),
-                lots=[Lot(shares=shares, price=price, execution_time=now)]
+                lots=[Lot(shares=shares, price=price, execution_time=now)],
             )
         )
     else:

@@ -3,7 +3,9 @@ from datetime import datetime
 from asset_manager.entities_new import Equity, Lot, Portfolio
 
 
-def calculate_pnl(shares: float, price: float, equity: Equity, portfolio: Portfolio) -> None:
+def calculate_pnl(
+    shares: float, price: float, equity: Equity, portfolio: Portfolio
+) -> None:
     now = datetime.now()
 
     # perform logic to calculate PnL
@@ -41,7 +43,9 @@ def calculate_pnl(shares: float, price: float, equity: Equity, portfolio: Portfo
             update_realized_pnl(price, current_lot.price, pnl_shares, portfolio)
 
 
-def update_realized_pnl(current_price: float, entry_price: float, shares: float, portfolio: Portfolio) -> None:
+def update_realized_pnl(
+    current_price: float, entry_price: float, shares: float, portfolio: Portfolio
+) -> None:
     pnl = (current_price - entry_price) * -shares
     portfolio.valuation.realized_pnl += pnl
 
