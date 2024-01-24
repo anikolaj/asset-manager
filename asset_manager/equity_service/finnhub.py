@@ -4,8 +4,8 @@ import os
 import requests
 
 from asset_manager.entities_new import Equity
-from asset_manager.equity_interface import EquityService
-from asset_manager.equity_interface.helpers import (
+from asset_manager.equity_service import EquityService
+from asset_manager.equity_service.helpers import (
     calculate_time_series_details,
     parse_prices_for_time_interval,
 )

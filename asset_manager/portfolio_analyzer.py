@@ -6,7 +6,7 @@ from typing import Optional
 
 import asset_manager.math_functions as mf
 from asset_manager.entities_new import Portfolio, Valuation
-from asset_manager.equity_interface import EquityService
+from asset_manager.equity_service import EquityService
 from asset_manager.objects import Interval, TimeSeriesDetails
 
 
