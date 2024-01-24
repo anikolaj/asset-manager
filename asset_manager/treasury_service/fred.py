@@ -3,7 +3,7 @@ import os
 import requests
 from datetime import date
 
-from asset_manager.treasury_interface import TreasuryService
+from asset_manager.treasury_service import TreasuryService
 
 
 class Fred(TreasuryService):

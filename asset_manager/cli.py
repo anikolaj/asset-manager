@@ -4,7 +4,7 @@ from asset_manager.excel_utility import ExcelUtility
 from asset_manager.objects import Interval
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 from asset_manager.portfolio_operations import deposit, trade_equity
-from asset_manager.treasury_interface import TreasuryService
+from asset_manager.treasury_service import TreasuryService
 
 
 class cli:
