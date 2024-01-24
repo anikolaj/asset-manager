@@ -1,7 +1,7 @@
 from bson import ObjectId
 from datetime import datetime
 
-from asset_manager.entities_new import Equity, Lot, Portfolio, Valuation
+from asset_manager.entities import Equity, Lot, Portfolio, Valuation
 from asset_manager.pnl import calculate_pnl, is_upsize, update_realized_pnl
 
 

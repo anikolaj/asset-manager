@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from asset_manager import pnl
-from asset_manager.entities_new import Equity, Lot, Portfolio, Trade
+from asset_manager.entities import Equity, Lot, Portfolio, Trade
 from asset_manager.equity_service import EquityService
 from asset_manager.database import Database
 

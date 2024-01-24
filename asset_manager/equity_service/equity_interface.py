@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from asset_manager.entities_new import Equity
+from asset_manager.entities import Equity
 from asset_manager.objects import Interval, TimeSeriesDetails
 
 

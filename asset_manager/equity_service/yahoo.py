@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from yahooquery import Ticker
 
-from asset_manager.entities_new import Equity
+from asset_manager.entities import Equity
 from asset_manager.equity_service import EquityService
 from asset_manager.equity_service.helpers import (
     calculate_time_series_details,
