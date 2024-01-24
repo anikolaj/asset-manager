@@ -1,4 +1,4 @@
-from asset_manager.database_new import Database
+from asset_manager.database import Database
 from asset_manager.equity_service import EquityService
 from asset_manager.excel_utility import ExcelUtility
 from asset_manager.objects import Interval

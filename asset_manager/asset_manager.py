@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 from asset_manager.cli import cli
-from asset_manager.database_new import Database
+from asset_manager.database import Database
 from asset_manager.entities_new import Portfolio
 from asset_manager.equity_service import YahooService
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer

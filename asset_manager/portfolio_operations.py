@@ -3,7 +3,7 @@ from datetime import datetime
 from asset_manager import pnl
 from asset_manager.entities_new import Equity, Lot, Portfolio, Trade
 from asset_manager.equity_service import EquityService
-from asset_manager.database_new import Database
+from asset_manager.database import Database
 
 
 # method handles trading the equity in the portfolio and saving to database
