@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from asset_manager.entities import Equity, Lot, Portfolio
+from asset_manager.database.entities import Equity, Lot, Portfolio
 
 
 def calculate_pnl(

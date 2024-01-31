@@ -3,7 +3,7 @@ from datetime import date
 from pymongo import MongoClient
 from typing import Optional
 
-from asset_manager.entities import Equity, Lot, Portfolio, Trade, Valuation
+from asset_manager.database.entities import Equity, Lot, Portfolio, Trade, Valuation
 
 
 class Database:

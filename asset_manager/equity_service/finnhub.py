@@ -3,7 +3,7 @@ import json
 import os
 import requests
 
-from asset_manager.entities import Equity
+from asset_manager.database.entities import Equity
 from asset_manager.equity_service import EquityService
 from asset_manager.equity_service.helpers import (
     calculate_time_series_details,
