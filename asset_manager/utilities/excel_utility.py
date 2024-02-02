@@ -7,7 +7,7 @@ from openpyxl.styles.fills import PatternFill
 from typing import Any, Optional
 
 import asset_manager.utilities.math_functions as mf
-from asset_manager.utilities.objects import Interval
+from asset_manager.objects import Interval
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 
 YELLOW_BACKGROUND = PatternFill(fgColor=styles.colors.COLOR_INDEX[5], fill_type="solid")

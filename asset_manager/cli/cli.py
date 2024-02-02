@@ -1,7 +1,7 @@
 from asset_manager.database import Database
 from asset_manager.equity_service import EquityService
 from asset_manager.utilities.excel_utility import ExcelUtility
-from asset_manager.utilities.objects import Interval
+from asset_manager.objects import Interval
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
 from asset_manager.cli.portfolio_operations import deposit, trade_equity
 from asset_manager.treasury_service import TreasuryService
