@@ -3,7 +3,7 @@ import yaml
 from datetime import datetime
 from typing import Optional
 
-from asset_manager.cli import cli
+from asset_manager.cli import CLI
 from asset_manager.database import Database
 from asset_manager.database.entities import Portfolio
 from asset_manager.equity_service import YahooService
@@ -47,7 +47,7 @@ def main() -> None:
     log_equities(p)
 
     # prompt CLI for executing portfolio commands
-    portfolio_prompt = cli(
+    portfolio_prompt = CLI(
         portfolio_analyzer=portfolio_analyzer,
         db=db,
         equity_service=equity_service,

@@ -1,8 +1,8 @@
 from bson import ObjectId
 from datetime import datetime
 
-from asset_manager.entities import Equity, Lot, Portfolio, Valuation
-from asset_manager.pnl import calculate_pnl, is_upsize, update_realized_pnl
+from asset_manager.database.entities import Equity, Lot, Portfolio, Valuation
+from asset_manager.cli.pnl import calculate_pnl, is_upsize, update_realized_pnl
 
 
 def test_is_upsize_with_empty_lots() -> None:
