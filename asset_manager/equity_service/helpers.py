@@ -1,7 +1,7 @@
 from statistics import stdev
 from scipy.stats import gmean
 
-from asset_manager.objects import Interval, TimeSeriesDetails
+from asset_manager.utilities.objects import Interval, TimeSeriesDetails
 
 
 def parse_prices_for_time_interval(

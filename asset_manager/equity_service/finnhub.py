@@ -9,7 +9,7 @@ from asset_manager.equity_service.helpers import (
     calculate_time_series_details,
     parse_prices_for_time_interval,
 )
-from asset_manager.objects import Interval, TimeSeriesDetails
+from asset_manager.utilities.objects import Interval, TimeSeriesDetails
 
 
 class FinnhubService(EquityService):

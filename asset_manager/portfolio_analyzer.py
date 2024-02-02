@@ -4,10 +4,10 @@ from collections import defaultdict
 from datetime import date
 from typing import Optional
 
-import asset_manager.math_functions as mf
+import asset_manager.utilities.math_functions as mf
 from asset_manager.database.entities import Portfolio, Valuation
 from asset_manager.equity_service import EquityService
-from asset_manager.objects import Interval, TimeSeriesDetails
+from asset_manager.utilities.objects import Interval, TimeSeriesDetails
 
 
 class PortfolioAnalyzer:

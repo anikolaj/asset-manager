@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from asset_manager.database.entities import Equity
-from asset_manager.objects import Interval, TimeSeriesDetails
+from asset_manager.utilities.objects import Interval, TimeSeriesDetails
 
 
 class EquityService(ABC):
