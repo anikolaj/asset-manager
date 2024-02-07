@@ -1,3 +1,3 @@
-from asset_manager.cli.cli import CLI
+from asset_manager.cli.cli_new import CLI
 
 __all__ = ["CLI"]

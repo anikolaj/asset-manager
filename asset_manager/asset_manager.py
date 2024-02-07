@@ -53,7 +53,7 @@ def main() -> None:
         equity_service=equity_service,
         treasury_service=treasury_service,
     )
-    portfolio_prompt.run_prompt()
+    portfolio_prompt.cmdloop()
 
 
 def load_config() -> dict:
