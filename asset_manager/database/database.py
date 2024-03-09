@@ -3,7 +3,15 @@ from datetime import date
 from pymongo import MongoClient
 from typing import Optional
 
-from asset_manager.database.entities import Equity, Lot, Portfolio, Trade, Valuation
+from asset_manager.database.entities import (
+    Equity,
+    Historical,
+    HistoricalData,
+    Lot,
+    Portfolio,
+    Trade,
+    Valuation,
+)
 
 
 class Database:
@@ -99,6 +107,37 @@ class Database:
 
         portfolios = self.db.get_collection("portfolio")
         portfolios.update_one({"_id": portfolio.id}, {"$set": portfolio.to_dict()})
+
+    def get_historical(self, portfolio_id: ObjectId) -> Historical:
+        """Returns historical object for the portfolio stored in database
+
+        Args:
+            portfolio_id (ObjectId): id of the portfolio
+
+        Returns:
+            Historical: object containing historical values for the portfolio
+        """
+
+        historicals = self.db.get_collection("historical")
+        historical_entity = historicals.find_one({"_id": portfolio_id})
+
+        if historical_entity is None:
+            raise Exception("No historical entity availabe - check database!")
+
+        historical_data = []
+        for historical_data_entity in historical_entity["historicalData"]:
+            historical_data.append(
+                HistoricalData(
+                    date=historical_data_entity["date"],
+                    value=historical_data_entity["value"],
+                )
+            )
+
+        return Historical(
+            id=historical_entity["_id"],
+            name=historical_entity["name"],
+            historical_data=historical_data,
+        )
 
     def __convert_entity_to_equity(self, equity_entity: dict) -> Equity:
         return Equity(

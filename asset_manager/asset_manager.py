@@ -12,6 +12,8 @@ from asset_manager.treasury_service import Fred
 
 
 def main() -> None:
+    current_date = datetime.today().date()
+
     # load config and configure services
     config = load_config()
 
@@ -30,15 +32,16 @@ def main() -> None:
     p = retrieve_portfolio(db)
     if p is None:
         return
+    historical = db.get_historical(p.id)
 
     print("")
-    print(f"SUMMARY DATE - {datetime.today().date()}")
+    print(f"SUMMARY DATE - {current_date}")
     print("---------------------------------")
 
     # construct portfolio analyzer and update details
-    portfolio_analyzer = PortfolioAnalyzer(p, equity_service)
+    portfolio_analyzer = PortfolioAnalyzer(p, historical, equity_service)
     portfolio_analyzer.analyze()
-    db.save_portfolio(portfolio_analyzer.portfolio)
+    db.save_portfolio(p)
 
     # output cash
     log_cash(p)

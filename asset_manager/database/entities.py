@@ -158,3 +158,30 @@ class Portfolio:
             f"trades={'[..]' if len(self.equities) != 0 else '[]'}), "
             f"valuation={self.valuation!r}"
         )
+
+
+class HistoricalData:
+    def __init__(self, date: datetime, value: float) -> None:
+        self.date = date
+        self.value = value
+
+    def to_dict(self) -> dict:
+        return {"date": self.date, "value": self.value}
+
+
+class Historical:
+    def __init__(
+        self, id: ObjectId, name: str, historical_data: list[HistoricalData]
+    ) -> None:
+        self.id = id
+        self.name = name
+        self.historical_data = historical_data
+
+    def to_dict(self) -> dict:
+        return {
+            "_id": self.id,
+            "name": self.name,
+            "historicalData": [
+                historical_data.to_dict() for historical_data in self.historical_data
+            ],
+        }

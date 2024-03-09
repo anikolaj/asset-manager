@@ -5,14 +5,17 @@ from datetime import date
 from typing import Optional
 
 import asset_manager.utilities.math_functions as mf
-from asset_manager.database.entities import Portfolio, Valuation
+from asset_manager.database.entities import Historical, Portfolio, Valuation
 from asset_manager.equity_service import EquityService
 from asset_manager.objects import Interval, TimeSeriesDetails
 
 
 class PortfolioAnalyzer:
-    def __init__(self, p: Portfolio, equity_service: EquityService) -> None:
+    def __init__(
+        self, p: Portfolio, historical: Historical, equity_service: EquityService
+    ) -> None:
         self.portfolio = p
+        self.historical = historical
         self.equity_service = equity_service
         self.current_year = date.today().year
 
