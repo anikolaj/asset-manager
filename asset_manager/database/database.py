@@ -139,6 +139,10 @@ class Database:
             historical_data=historical_data,
         )
 
+    def save_historical(self, historical: Historical) -> None:
+        historicals = self.db.get_collection("historical")
+        historicals.update_one({"_id": historical.id}, {"$set": historical.to_dict()})
+
     def __convert_entity_to_equity(self, equity_entity: dict) -> Equity:
         return Equity(
             ticker=equity_entity["ticker"],

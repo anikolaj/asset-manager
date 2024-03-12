@@ -168,6 +168,9 @@ class HistoricalData:
     def to_dict(self) -> dict:
         return {"date": self.date, "value": self.value}
 
+    def __repr__(self) -> str:
+        return f"HistoricalData(date={self.date.date()}, value={self.value})"
+
 
 class Historical:
     def __init__(
@@ -185,3 +188,9 @@ class Historical:
                 historical_data.to_dict() for historical_data in self.historical_data
             ],
         }
+
+    def __repr__(self) -> str:
+        return (
+            f"Historical(id={self.id}, name={self.name}, "
+            f"historicalData={'[..]' if len(self.historical_data) != 0 else '[]'})"
+        )

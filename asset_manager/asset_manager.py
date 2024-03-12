@@ -39,9 +39,8 @@ def main() -> None:
     print("---------------------------------")
 
     # construct portfolio analyzer and update details
-    portfolio_analyzer = PortfolioAnalyzer(p, historical, equity_service)
+    portfolio_analyzer = PortfolioAnalyzer(p, historical, db, equity_service)
     portfolio_analyzer.analyze()
-    db.save_portfolio(p)
 
     # output cash
     log_cash(p)

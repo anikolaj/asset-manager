@@ -1,21 +1,32 @@
 import math
 import numpy as np
 from collections import defaultdict
-from datetime import date
+from datetime import date, datetime, timedelta
 from typing import Optional
 
 import asset_manager.utilities.math_functions as mf
-from asset_manager.database.entities import Historical, Portfolio, Valuation
+from asset_manager.database import Database
+from asset_manager.database.entities import (
+    Historical,
+    HistoricalData,
+    Portfolio,
+    Valuation,
+)
 from asset_manager.equity_service import EquityService
 from asset_manager.objects import Interval, TimeSeriesDetails
 
 
 class PortfolioAnalyzer:
     def __init__(
-        self, p: Portfolio, historical: Historical, equity_service: EquityService
+        self,
+        p: Portfolio,
+        historical: Historical,
+        db: Database,
+        equity_service: EquityService,
     ) -> None:
         self.portfolio = p
         self.historical = historical
+        self.db = db
         self.equity_service = equity_service
         self.current_year = date.today().year
 
@@ -45,6 +56,7 @@ class PortfolioAnalyzer:
 
         self.update_equities()
         self.update_valuation()
+        self.update_historical()
 
         for time_interval in Interval:
             # skipping five year interval
@@ -61,6 +73,9 @@ class PortfolioAnalyzer:
 
             # compute the minimum variance line
             self.compute_minimum_variance_line(time_interval)
+
+        self.db.save_portfolio(self.portfolio)
+        self.db.save_historical(self.historical)
 
     def update_equities(self) -> None:
         """Method handles updating equity information"""
@@ -136,6 +151,58 @@ class PortfolioAnalyzer:
         print(f"PnL (compared to previous day) = {'+' if pnl >= 0 else '-'}${abs(pnl)}")
         print("")
 
+    def update_historical(self) -> None:
+        """Method handles updating historical data for the retrieved portfolio"""
+
+        last_date = self.historical.historical_data[-1].date.date()
+        today = date.today()
+
+        if last_date == today:
+            return
+
+        # get pricing data for each equity from last_date until today
+        pricing_data: dict[str, dict[date, float]] = {}
+        for eq in self.portfolio.equities:
+            pricing_data[eq.ticker] = self.equity_service.get_price_history(
+                ticker=eq.ticker, start_date=last_date, end_date=today
+            )
+
+        # determine if we need to backfill portfolio values
+        current_date = last_date + timedelta(days=1)
+        while current_date < date.today():
+            # check pricing data exists on the date to fill
+            target_date = current_date
+            while (
+                pricing_data[self.portfolio.equities[0].ticker].get(target_date) is None
+            ):
+                target_date -= timedelta(days=1)
+
+            # calculate portfolio value using pricing data and target date
+            value = self.compute_total_value_on_date(target_date, pricing_data)
+
+            # add historical data entry
+            self.historical.historical_data.append(
+                HistoricalData(
+                    date=datetime(
+                        year=current_date.year,
+                        month=current_date.month,
+                        day=current_date.day,
+                    ),
+                    value=value,
+                )
+            )
+
+            # go to next date to backfill
+            current_date += timedelta(days=1)
+
+        # update historical data for current date
+        self.historical.historical_data.append(
+            HistoricalData(
+                date=datetime(year=today.year, month=today.month, day=today.day),
+                value=self.portfolio.value,
+            )
+        )
+
     def compute_total_value(self) -> None:
         """Method computes the total value of all assets in the portfolio"""
 
@@ -168,6 +235,16 @@ class PortfolioAnalyzer:
         total_value = round(total_value, 2)
 
         return total_value
+
+    def compute_total_value_on_date(
+        self, target_date: date, pricing_data: dict[str, dict[date, float]]
+    ) -> float:
+        total_value = self.portfolio.cash
+
+        for eq in self.portfolio.equities:
+            total_value += pricing_data[eq.ticker][target_date] * eq.shares
+
+        return round(total_value, 2)
 
     def compute_year_start_value(self) -> None:
         """Method computes the year start value of all assets in the portfolio"""

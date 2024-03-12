@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from yahooquery import Ticker
 
 from asset_manager.database.entities import Equity
@@ -23,6 +23,15 @@ class YahooService(EquityService):
             round(price_info["regularMarketPrice"], 2),
             round(price_info["regularMarketPreviousClose"], 2),
         )
+
+    def get_price_history(
+        self, ticker: str, start_date: date, end_date: date
+    ) -> dict[date, float]:
+        stock = Ticker(ticker)
+        history = stock.history(start=start_date, end=end_date + timedelta(days=1))
+        prices: pd.Series = history.loc[ticker]["adjclose"]
+
+        return prices.to_dict()
 
     def get_equity_year_start_price(self, ticker: str) -> float:
         print(f"getting year start price - {ticker}")
