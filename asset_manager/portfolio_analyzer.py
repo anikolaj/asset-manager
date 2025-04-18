@@ -154,31 +154,31 @@ class PortfolioAnalyzer:
     def update_historical(self) -> None:
         """Method handles updating historical data for the retrieved portfolio"""
 
-        last_date = self.historical.historical_data[-1].date.date()
+        last_historical_date = self.historical.historical_data[-1].date.date()
         today = date.today()
 
-        if last_date == today:
+        if last_historical_date == today:
             return
 
-        # get pricing data for each equity from last_date until today
+        # get pricing data for each equity
         pricing_data: dict[str, dict[date, float]] = {}
         for eq in self.portfolio.equities:
             pricing_data[eq.ticker] = self.equity_service.get_price_history(
-                ticker=eq.ticker, start_date=last_date, end_date=today
+                ticker=eq.ticker, start_date=(last_historical_date - timedelta(weeks=1)), end_date=today
             )
 
         # determine if we need to backfill portfolio values
-        current_date = last_date + timedelta(days=1)
-        while current_date < date.today():
+        current_date = last_historical_date + timedelta(days=1)
+        while current_date < today:
             # check pricing data exists on the date to fill
-            target_date = current_date
+            pricing_date = current_date
             while (
-                pricing_data[self.portfolio.equities[0].ticker].get(target_date) is None
+                pricing_data[self.portfolio.equities[0].ticker].get(pricing_date) is None
             ):
-                target_date -= timedelta(days=1)
+                pricing_date -= timedelta(days=1)
 
-            # calculate portfolio value using pricing data and target date
-            value = self.compute_total_value_on_date(target_date, pricing_data)
+            # calculate portfolio value using pricing data and pricing date
+            value = self.compute_total_value_on_date(pricing_date, pricing_data)
 
             # add historical data entry
             self.historical.historical_data.append(
