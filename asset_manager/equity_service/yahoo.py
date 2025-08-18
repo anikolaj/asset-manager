@@ -1,7 +1,7 @@
 import os
 import pandas as pd
+import yfinance as yf
 from datetime import date, datetime, timedelta
-from yahooquery import Ticker
 
 from asset_manager.database.entities import Equity
 from asset_manager.equity_service import EquityService
@@ -17,32 +17,42 @@ class YahooService(EquityService):
         pass
 
     def get_equity_prices(self, ticker: str) -> tuple[float, float]:
-        stock = Ticker(ticker)
-        price_info = stock.price[ticker]
+        stock = yf.Ticker(ticker)
+        stock_info = stock.info
+
         return (
-            round(price_info["regularMarketPrice"], 2),
-            round(price_info["regularMarketPreviousClose"], 2),
+            round(stock_info["currentPrice"], 2),
+            round(stock_info["previousClose"], 2),
         )
 
     def get_price_history(
         self, ticker: str, start_date: date, end_date: date
     ) -> dict[date, float]:
-        stock = Ticker(ticker)
-        history = stock.history(start=start_date, end=end_date + timedelta(days=1))
-        prices: pd.Series = history.loc[ticker]["adjclose"]
+        start = start_date.isoformat()
+        end = (end_date + timedelta(days=1)).isoformat()
 
-        return prices.to_dict()
+        history = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=True)
+
+        # determine closing prices
+        if "Adj Close" in history.columns:
+            prices: pd.Series = history["Adj Close"][ticker]
+        else:
+            prices: pd.Series = history["Close"][ticker]
+
+        prices_dict: dict[pd.DatetimeIndex, float] = prices.to_dict()
+
+        return {dti.date(): price for dti, price in prices_dict.items()}
 
     def get_equity_year_start_price(self, ticker: str) -> float:
         print(f"getting year start price - {ticker}")
         current_year = datetime.today().year
 
-        stock = Ticker(ticker)
+        stock = yf.Ticker(ticker)
         stock_history = stock.history(
             start=f"{current_year}-01-01", end=f"{current_year}-01-07"
         )
 
-        return stock_history.iloc[0]["open"]
+        return stock_history.iloc[0]["Open"]
 
     def update_equity_details(
         self, eq: Equity, time_interval: Interval
@@ -61,7 +71,8 @@ class YahooService(EquityService):
 
         if os.path.exists(filename) is False:
             print("making request to yahoofinance api")
-            stock = Ticker(eq.ticker)
+
+            stock = yf.Ticker(eq.ticker)
             price_data = stock.history(
                 start=from_date.date(), end=to_date.date(), interval="1mo"
             )
@@ -71,7 +82,7 @@ class YahooService(EquityService):
         else:
             price_data = pd.read_csv(filename)
 
-        monthly_prices = list(price_data["close"])
+        monthly_prices = list(price_data["Close"])
         time_series = parse_prices_for_time_interval(monthly_prices, time_interval)
 
         return calculate_time_series_details(time_series)
