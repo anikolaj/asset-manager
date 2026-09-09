@@ -31,7 +31,7 @@ class YahooService(EquityService):
         start = start_date.isoformat()
         end = (end_date + timedelta(days=1)).isoformat()
 
-        history = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=True)
+        history = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=True, repair=True)
 
         # determine closing prices
         if "Adj Close" in history.columns:
