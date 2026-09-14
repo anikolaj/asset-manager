@@ -3,10 +3,10 @@ clean:
 	find ./tests -name '*.pyc' -exec rm --force {} \;
 
 init:
-	pip install -r requirements.txt
+	uv sync
 
 test:
-	nosetests -v tests/**.py
+	uv run pytest -v tests
 
 run:
-	python3 -m asset_manager $(PORTFOLIO)
+	uv run python -m asset_manager $(PORTFOLIO)

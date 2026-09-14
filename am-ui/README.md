@@ -14,7 +14,7 @@ The dashboard loads `http://localhost:5000/portfolio?name=<portfolio>`. Without 
 Start the API from the repo root:
 
 ```bash
-python am_api.py
+uv run python am_api.py
 ```
 
 It listens on port 5000. The portfolio name is currently hardcoded as `test` in `src/App.tsx`. Change that constant to load a different portfolio.
