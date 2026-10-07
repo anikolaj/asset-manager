@@ -40,6 +40,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import { calendarDate, formatChangePercent, formatLocalDate, oneMonthAgo, percentChange } from './utils';
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -72,42 +73,69 @@ const revenueData = [
     { month: 'Dec', revenue: 8500, orders: 520 },
   ];
 
+const valueOneMonthAgo = (historicalData) => {
+  if (!Array.isArray(historicalData) || historicalData.length === 0) return null;
+
+  const target = oneMonthAgo();
+  const targetKey = formatLocalDate(target);
+
+  const earliestAllowed = new Date(target);
+  earliestAllowed.setDate(earliestAllowed.getDate() - 10);
+  const earliestKey = formatLocalDate(earliestAllowed);
+
+  const candidates = historicalData
+    .map((point) => ({ date: calendarDate(point.date), value: point.value }))
+    .filter((point) => point.date && point.date <= targetKey && point.date >= earliestKey)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  return candidates.length ? candidates[candidates.length - 1].value : null;
+};
+
 // Stat Card Component
-const StatCard = ({ title, value, change, changeType, icon: Icon, color }) => (
-  <Card sx={{ height: '100%' }}>
-    <CardContent>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Box>
-          <Typography color="text.secondary" variant="body2" sx={{ mb: 1 }}>
-            {title}
-          </Typography>
-          <Typography variant="h4" sx={{ mb: 1 }}>
-            {value}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            {changeType === 'up' ? (
-              <TrendingUp sx={{ fontSize: 18, color: 'success.main' }} />
-            ) : (
-              <TrendingDown sx={{ fontSize: 18, color: 'error.main' }} />
+const StatCard = ({ title, value, changePercent, reference, icon: Icon, color }) => {
+  const isPositive = changePercent >= 0;
+
+  return (
+    <Card sx={{ height: '100%' }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Typography color="text.secondary" variant="body2" sx={{ mb: 1 }}>
+              {title}
+            </Typography>
+            <Typography variant="h4" sx={{ mb: 1 }}>
+              {value}
+            </Typography>
+
+            {changePercent != null && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                {isPositive ? (
+                  <TrendingUp sx={{ fontSize: 18, color: 'success.main' }} />
+                ) : (
+                  <TrendingDown sx={{ fontSize: 18, color: 'error.main' }} />
+                )}
+                <Typography
+                  variant="body2"
+                  sx={{ color: isPositive ? 'success.main' : 'error.main' }}
+                >
+                  {formatChangePercent(changePercent)}
+                </Typography>
+                {reference && (
+                  <Typography variant="body2" color="text.secondary">
+                    {reference}
+                  </Typography>
+                )}
+              </Box>
             )}
-            <Typography
-              variant="body2"
-              sx={{ color: changeType === 'up' ? 'success.main' : 'error.main' }}
-            >
-              {change}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              vs last month
-            </Typography>
           </Box>
+          <Avatar sx={{ bgcolor: `${color}.light`, width: 48, height: 48 }}>
+            <Icon sx={{ color: `${color}.main` }} />
+          </Avatar>
         </Box>
-        <Avatar sx={{ bgcolor: `${color}.light`, width: 48, height: 48 }}>
-          <Icon sx={{ color: `${color}.main` }} />
-        </Avatar>
-      </Box>
-    </CardContent>
-  </Card>
-);
+      </CardContent>
+    </Card>
+  );
+};
 
 // Status cell renderer for AG Grid
 const StatusCellRenderer = (params: any) => {
@@ -135,6 +163,7 @@ const StatusCellRenderer = (params: any) => {
 
 function App() {
   const [portfolio, setPortfolio] = useState<object | null>(null);
+  const [historical, setHistorical] = useState<object | null>(null);
 
   const portfolioName = 'test'; // TODO: replace with your portfolio name
 
@@ -176,7 +205,22 @@ function App() {
       }
     };
 
+    const fetchHistorical = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/portfolio/historical?name=${portfolioName}`);
+
+        if (!response.ok) {
+          throw new Error(`Historical fetch failed with status ${response.status}`);
+        }
+
+        setHistorical(await response.json());
+      } catch (error) {
+        console.error('Error fetching historical portfolio values:', error);
+      }
+    };
+
     fetchPortfolio();
+    fetchHistorical();
   }, [portfolioName]);
 
   const formatCurrency = (value: number | null) =>
@@ -236,6 +280,18 @@ function App() {
     return data;
   }, [portfolio]);
 
+  const monthChangePercent = useMemo(
+    () => percentChange(portfolio?.valuation?.currentValue, valueOneMonthAgo(historical?.historicalData)),
+    [portfolio, historical],
+  );
+
+  const dayChangePercent = useMemo(() => {
+    const currentValue = portfolio?.valuation?.currentValue;
+    const pnl = portfolio?.valuation?.pnl;
+    if (currentValue == null || pnl == null) return null;
+    return percentChange(currentValue, currentValue - pnl);
+  }, [portfolio]);
+
   const defaultColDef = useMemo(() => ({
     sortable: true,
     resizable: true,
@@ -266,8 +322,8 @@ function App() {
             <StatCard
               title="Total Value"
               value={formatCurrency(portfolio?.valuation?.currentValue)}
-              change={formatPercentage(0)}
-              changeType={0 > 0 ? 'up' : 'down'}
+              changePercent={monthChangePercent}
+              reference="vs last month"
               icon={Savings}
               color="success"
             />
@@ -276,8 +332,6 @@ function App() {
             <StatCard
               title="Year to Date"
               value={formatPercentage(portfolio?.valuation?.ytd)}
-              change={formatPercentage(portfolio?.valuation?.ytd)}
-              changeType={portfolio?.valuation?.ytd > 0 ? 'up' : 'down'}
               icon={TrendingUp}
               color="secondary"
             />
@@ -286,8 +340,8 @@ function App() {
             <StatCard
               title="PnL (1D)"
               value={formatCurrency(portfolio?.valuation?.pnl)}
-              change={formatCurrency(portfolio?.valuation?.pnl)}
-              changeType={portfolio?.valuation?.pnl > 0 ? 'up' : 'down'}
+              changePercent={dayChangePercent}
+              reference="since yesterday"
               icon={AttachMoney}
               color="info"
             />
@@ -296,8 +350,6 @@ function App() {
             <StatCard
               title="Cash"
               value={formatCurrency(portfolio?.cash)}
-              change={formatPercentage(0)}
-              changeType={0 > 0 ? 'up' : 'down'}
               icon={Inventory}
               color="warning"
             />

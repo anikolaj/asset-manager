@@ -36,5 +36,18 @@ class Portfolio(Resource):
         ))
 
 
+@api.route("/portfolio/historical")
+class Historical(Resource):
+    def get(self):
+        portfolio_name = request.args.get("name")
+        
+        portfolio = db.get_portfolio_by_name(portfolio_name)
+        historical = db.get_historical(portfolio.id)
+        
+        return jsonify(json.loads(
+            json_util.dumps(historical.to_dict())
+        ))
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
