@@ -57,21 +57,36 @@ const gridTheme = themeQuartz.withParams({
   cellHorizontalPadding: 16,
 });
 
-// Sample data for charts
-const revenueData = [
-    { month: 'Jan', revenue: 4000, orders: 240 },
-    { month: 'Feb', revenue: 3000, orders: 198 },
-    { month: 'Mar', revenue: 5000, orders: 300 },
-    { month: 'Apr', revenue: 4500, orders: 278 },
-    { month: 'May', revenue: 6000, orders: 389 },
-    { month: 'Jun', revenue: 5500, orders: 349 },
-    { month: 'Jul', revenue: 7000, orders: 430 },
-    { month: 'Aug', revenue: 6500, orders: 401 },
-    { month: 'Sep', revenue: 8000, orders: 502 },
-    { month: 'Oct', revenue: 7500, orders: 475 },
-    { month: 'Nov', revenue: 9000, orders: 560 },
-    { month: 'Dec', revenue: 8500, orders: 520 },
-  ];
+const portfolioHistoryPoints = (historicalData) => {
+  if (!Array.isArray(historicalData)) return [];
+
+  return historicalData
+    .map((point) => {
+      const date = calendarDate(point.date);
+      if (!date || point.value == null) return null;
+      return { date, value: point.value };
+    })
+    .filter((point) => point != null)
+    .sort((a, b) => a.date.localeCompare(b.date));
+};
+
+const formatChartDate = (isoDate, withYear = true) => {
+  const [year, month, day] = String(isoDate).split('-').map(Number);
+  if (!year || !month || !day) return String(isoDate);
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    ...(withYear ? { year: 'numeric' } : {}),
+  });
+};
+
+const formatCompactCurrency = (value) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value);
 
 const valueOneMonthAgo = (historicalData) => {
   if (!Array.isArray(historicalData) || historicalData.length === 0) return null;
@@ -280,6 +295,14 @@ function App() {
     return data;
   }, [portfolio]);
 
+  const portfolioHistory = useMemo(
+    () => portfolioHistoryPoints(historical?.historicalData),
+    [historical],
+  );
+
+  const historySpansYears = portfolioHistory.length > 1
+    && portfolioHistory[0].date.slice(0, 4) !== portfolioHistory[portfolioHistory.length - 1].date.slice(0, 4);
+
   const monthChangePercent = useMemo(
     () => percentChange(portfolio?.valuation?.currentValue, valueOneMonthAgo(historical?.historicalData)),
     [portfolio, historical],
@@ -364,36 +387,60 @@ function App() {
                 <Typography variant="h6" sx={{ mb: 3 }}>
                   Portfolio Overview
                 </Typography>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={revenueData}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1976D2" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#1976D2" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
-                    <XAxis dataKey="month" stroke="#9E9E9E" fontSize={12} />
-                    <YAxis stroke="#9E9E9E" fontSize={12} tickFormatter={(value) => `$${value / 1000}k`} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#fff',
-                        border: '1px solid #E0E0E0',
-                        borderRadius: 8,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      }}
-                      formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#1976D2"
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorRevenue)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {portfolioHistory.length === 0 ? (
+                  <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography color="text.secondary">
+                      {historical ? 'No historical values yet' : 'Loading historical values…'}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={portfolioHistory} margin={{ top: 8, right: 16, left: 8, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#1976D2" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#1976D2" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9E9E9E"
+                        fontSize={12}
+                        minTickGap={28}
+                        tickFormatter={(value) => formatChartDate(value, historySpansYears)}
+                      />
+                      <YAxis
+                        stroke="#9E9E9E"
+                        fontSize={12}
+                        width={72}
+                        domain={[(dataMin) => dataMin * 0.98, (dataMax) => dataMax * 1.02]}
+                        tickFormatter={formatCompactCurrency}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: 8,
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        }}
+                        labelFormatter={(label) => formatChartDate(label)}
+                        formatter={(value) => [
+                          typeof value === 'number' ? formatCurrency(value) : '',
+                          'Value',
+                        ]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#1976D2"
+                        strokeWidth={2}
+                        fillOpacity={1}
+                        fill="url(#colorValue)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </CardContent>
             </Card>
           </Grid>
