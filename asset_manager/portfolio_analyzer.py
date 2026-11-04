@@ -289,7 +289,6 @@ class PortfolioAnalyzer:
             daily_risk = self.ticker_to_timeseries[equity.ticker][time_interval].std_dev
 
             equity.weight = (equity.shares * equity.price) / self.portfolio.value
-            # print(equity.ticker + " weight = " + str(equity.weight))
 
             weights.append(equity.weight)
             portfolio_returns_daily.append(daily_return)
@@ -298,7 +297,7 @@ class PortfolioAnalyzer:
             no_covariance = False
             for other_equity in self.portfolio.equities:
                 if equity.ticker == other_equity.ticker:
-                    row_covariances.append(np.float64(1))
+                    row_covariances.append(np.float64(daily_risk**2))
                 else:
                     other_returns = self.ticker_to_timeseries[other_equity.ticker][
                         time_interval
