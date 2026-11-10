@@ -1,5 +1,5 @@
 from bson import ObjectId
-from datetime import date
+from datetime import date, datetime
 from pymongo import MongoClient
 from typing import Optional
 
@@ -95,6 +95,18 @@ class Database:
 
         portfolios = self.db.get_collection("portfolio")
         portfolios.insert_one(portfolio.to_dict())
+
+        historical = Historical(
+            id=portfolio.id,
+            name=portfolio.name,
+            historical_data=[
+                HistoricalData(
+                    date=datetime.combine(date.today(), datetime.min.time()),
+                    value=portfolio.value,
+                )
+            ],
+        )
+        self.db.get_collection("historical").insert_one(historical.to_dict())
 
         return portfolio
 

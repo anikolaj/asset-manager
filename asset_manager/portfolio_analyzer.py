@@ -154,8 +154,17 @@ class PortfolioAnalyzer:
     def update_historical(self) -> None:
         """Method handles updating historical data for the retrieved portfolio"""
 
-        last_historical_date = self.historical.historical_data[-1].date.date()
         today = date.today()
+        if not self.historical.historical_data:
+            self.historical.historical_data.append(
+                HistoricalData(
+                    date=datetime.combine(today, datetime.min.time()),
+                    value=self.portfolio.value,
+                )
+            )
+            return
+
+        last_historical_date = self.historical.historical_data[-1].date.date()
 
         if last_historical_date == today:
             return
@@ -173,7 +182,8 @@ class PortfolioAnalyzer:
             # check pricing data exists on the date to fill
             pricing_date = current_date
             while (
-                pricing_data[self.portfolio.equities[0].ticker].get(pricing_date) is None
+                self.portfolio.equities
+                and pricing_data[self.portfolio.equities[0].ticker].get(pricing_date) is None
             ):
                 pricing_date -= timedelta(days=1)
 
