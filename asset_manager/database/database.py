@@ -4,6 +4,8 @@ from pymongo import MongoClient
 from typing import Optional
 
 from asset_manager.database.entities import (
+    CashFlow,
+    CashFlowOperation,
     Equity,
     Historical,
     HistoricalData,
@@ -64,6 +66,10 @@ class Database:
             equities=equities,
             trades=trades,
             valuation=valuation,
+            cash_flows=[
+                self.__convert_entity_to_cash_flow(entity)
+                for entity in portfolio_entity.get("cashFlows", [])
+            ],
         )
 
     def create_portfolio(self, portfolio_name: str) -> Portfolio:
@@ -173,6 +179,13 @@ class Database:
             price=trade_entity["price"],
             shares=trade_entity["shares"],
             execution_time=trade_entity["executionTime"],
+        )
+
+    def __convert_entity_to_cash_flow(self, cash_flow_entity: dict) -> CashFlow:
+        return CashFlow(
+            amount=cash_flow_entity["amount"],
+            timestamp=cash_flow_entity["timestamp"],
+            operation=CashFlowOperation(cash_flow_entity["operation"]),
         )
 
     def __convert_entity_to_valuation(self, valuation_entity: dict) -> Valuation:

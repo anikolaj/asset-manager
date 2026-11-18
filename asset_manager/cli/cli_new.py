@@ -168,16 +168,19 @@ class CLI(cmd.Cmd):
         """
         command = args.split()
 
-        if len(command) != 2:
+        if len(command) != 1:
             print('INVALID COMMAND FORMAT - MUST BE "DEPOSIT <AMOUNT>"')
             return
 
-        deposit_amount = float(command[1])
-        deposit(
-            portfolio=self.portfolio_analyzer.portfolio,
-            deposit_amount=deposit_amount,
-            db=self.db,
-        )
+        try:
+            deposit_amount = float(command[0])
+            deposit(
+                portfolio=self.portfolio_analyzer.portfolio,
+                deposit_amount=deposit_amount,
+                db=self.db,
+            )
+        except ValueError as error:
+            print(f"INVALID DEPOSIT - {error}")
 
     def do_rates(self, _) -> None:
         """

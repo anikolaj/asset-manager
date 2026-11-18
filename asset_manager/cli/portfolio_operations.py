@@ -1,7 +1,8 @@
 from datetime import datetime
+from math import isfinite
 
 from asset_manager.cli import pnl
-from asset_manager.database.entities import Equity, Lot, Portfolio, Trade
+from asset_manager.database.entities import CashFlow, CashFlowOperation, Equity, Lot, Portfolio, Trade
 from asset_manager.equity_service import EquityService
 from asset_manager.database import Database
 
@@ -58,5 +59,15 @@ def trade_equity(
 
 # method handles depositing amount into portfolio cash balance
 def deposit(portfolio: Portfolio, deposit_amount: float, db: Database) -> None:
+    if not isfinite(deposit_amount) or deposit_amount <= 0:
+        raise ValueError("deposit amount must be positive and finite")
+
     portfolio.cash += deposit_amount
+    portfolio.cash_flows.append(
+        CashFlow(
+            amount=deposit_amount,
+            timestamp=datetime.now(),
+            operation=CashFlowOperation.DEPOSIT,
+        )
+    )
     db.save_portfolio(portfolio)

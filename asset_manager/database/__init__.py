@@ -1,5 +1,7 @@
 from asset_manager.database.database import Database
 from asset_manager.database.entities import (
+    CashFlow,
+    CashFlowOperation,
     Equity,
     Historical,
     HistoricalData,
@@ -10,6 +12,8 @@ from asset_manager.database.entities import (
 )
 
 __all__ = [
+    "CashFlow",
+    "CashFlowOperation",
     "Database",
     "Equity",
     "Historical",

@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from bson import ObjectId
 
@@ -121,6 +122,33 @@ class Trade:
         )
 
 
+class CashFlowOperation(str, Enum):
+    DEPOSIT = "DEPOSIT"
+    WITHDRAWAL = "WITHDRAWAL"
+
+
+class CashFlow:
+    def __init__(
+        self, amount: float, timestamp: datetime, operation: CashFlowOperation
+    ) -> None:
+        self.amount = amount
+        self.timestamp = timestamp
+        self.operation = operation
+
+    def to_dict(self) -> dict:
+        return {
+            "amount": self.amount,
+            "timestamp": self.timestamp,
+            "operation": self.operation.value,
+        }
+
+    def __repr__(self) -> str:
+        return (
+            f"CashFlow(amount={self.amount}, timestamp={self.timestamp}, "
+            f"operation={self.operation.value})"
+        )
+
+
 class Portfolio:
     def __init__(
         self,
@@ -131,6 +159,7 @@ class Portfolio:
         equities: list[Equity],
         trades: list[Trade],
         valuation: Valuation,
+        cash_flows: list[CashFlow] | None = None,
     ) -> None:
         self.id = id
         self.name = name
@@ -139,6 +168,7 @@ class Portfolio:
         self.equities = equities
         self.trades = trades
         self.valuation = valuation
+        self.cash_flows = cash_flows if cash_flows is not None else []
 
     def to_dict(self) -> dict:
         return {
@@ -148,6 +178,7 @@ class Portfolio:
             "cash": self.cash,
             "equities": [equity.to_dict() for equity in self.equities],
             "trades": [trade.to_dict() for trade in self.trades],
+            "cashFlows": [cash_flow.to_dict() for cash_flow in self.cash_flows],
             "valuation": self.valuation.to_dict(),
         }
 
@@ -156,6 +187,7 @@ class Portfolio:
             f"Portfolio(id={self.id}, name={self.name}, value={self.value}, cash={self.cash}, "
             f"equities={'[..]' if len(self.equities) != 0 else '[]'}, "
             f"trades={'[..]' if len(self.equities) != 0 else '[]'}), "
+            f"cash_flows={'[..]' if self.cash_flows else '[]'}, "
             f"valuation={self.valuation!r}"
         )
 
