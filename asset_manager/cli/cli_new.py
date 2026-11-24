@@ -7,6 +7,7 @@ from asset_manager.database import Database
 from asset_manager.equity_service import EquityService
 from asset_manager.objects import Interval
 from asset_manager.portfolio_analyzer import PortfolioAnalyzer
+from asset_manager.research import research
 from asset_manager.treasury_service import TreasuryService
 from asset_manager.utilities.excel_utility import ExcelUtility
 
@@ -181,6 +182,27 @@ class CLI(cmd.Cmd):
             )
         except ValueError as error:
             print(f"INVALID DEPOSIT - {error}")
+
+    def do_research(self, args: str) -> None:
+        """
+        Displays annual returns using up to five years of adjusted price history.
+
+        Usage:
+            research <ticker> [ticker ...]
+
+        Tickers may be separated by spaces or commas.
+
+        Examples:
+            research AAPL
+            research AAPL MSFT GOOGL
+            research AAPL,MSFT
+        """
+        tickers = args.replace(",", " ").upper().split()
+        if not tickers:
+            print('INVALID COMMAND FORMAT - MUST BE "RESEARCH <TICKER> [TICKER ...]"')
+            return
+
+        research(tickers, equity_service=self.equity_service)
 
     def do_rates(self, _) -> None:
         """
