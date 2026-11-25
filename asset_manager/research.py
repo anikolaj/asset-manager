@@ -58,8 +58,27 @@ def calculate_annual_volatility(prices: dict[date, float]) -> float:
     return volatility
 
 
+def calculate_maximum_drawdown(prices: dict[date, float]) -> float:
+    """Return the worst peak-to-subsequent-low decline as a negative fraction."""
+    observations = [
+        price for _, price in sorted(prices.items())
+        if isfinite(price) and price > 0
+    ]
+    if len(observations) < 2:
+        raise ValueError("At least two valid closing prices are required")
+
+    peak = observations[0]
+    maximum_drawdown = 0.0
+    for current_price in observations:
+        peak = max(peak, current_price)
+        drawdown = current_price / peak - 1
+        maximum_drawdown = min(maximum_drawdown, drawdown)
+
+    return maximum_drawdown
+
+
 def research(tickers: list[str], equity_service: EquityService) -> None:
-    """Print annual return and volatility from up to five years of adjusted daily prices."""
+    """Print return, volatility, and drawdown from up to five years of adjusted daily prices."""
     if not tickers:
         print("No tickers provided.")
         return
@@ -78,7 +97,7 @@ def research(tickers: list[str], equity_service: EquityService) -> None:
         try:
             prices = equity_service.get_price_history(ticker, start_date, today)
         except Exception as error:
-            rows.append([ticker, "N/A", "N/A"])
+            rows.append([ticker, "N/A", "N/A", "N/A"])
             errors.append(f"{ticker}: {error}")
             continue
 
@@ -86,6 +105,7 @@ def research(tickers: list[str], equity_service: EquityService) -> None:
         for name, calculate in (
             ("Annual Return", calculate_annual_return),
             ("Annual Volatility", calculate_annual_volatility),
+            ("Max Drawdown", calculate_maximum_drawdown),
         ):
             try:
                 row.append(f"{calculate(prices):.2%}")
@@ -96,9 +116,9 @@ def research(tickers: list[str], equity_service: EquityService) -> None:
 
     print(tabulate(
         rows,
-        headers=["Ticker", "Annual Return", "Annual Volatility"],
+        headers=["Ticker", "Annual Return", "Annual Volatility", "Max Drawdown"],
         tablefmt="simple",
-        colalign=("left", "right", "right"),
+        colalign=("left", "right", "right", "right"),
         disable_numparse=True,
     ))
 

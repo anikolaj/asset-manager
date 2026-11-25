@@ -185,7 +185,7 @@ class CLI(cmd.Cmd):
 
     def do_research(self, args: str) -> None:
         """
-        Displays annual return and volatility using up to five years of adjusted price history.
+        Displays annual return, volatility, and max drawdown using up to five years of adjusted price history.
 
         Usage:
             research <ticker> [ticker ...]
