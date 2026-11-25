@@ -2,7 +2,8 @@
 
 from calendar import monthrange
 from datetime import date
-from math import isfinite
+from math import isfinite, sqrt
+from statistics import stdev
 
 from tabulate import tabulate
 
@@ -22,15 +23,43 @@ def calculate_annual_return(prices: dict[date, float]) -> float:
     end_date, end_price = observations[-1]
     years = (end_date - start_date).days / 365.25
     annual_return = (end_price / start_price) ** (1 / years) - 1
-    
+
     if not isfinite(annual_return):
         raise ValueError("Annual return could not be calculated")
-    
+
     return annual_return
 
 
+def calculate_annual_volatility(prices: dict[date, float]) -> float:
+    """Annualize sample volatility of daily simple returns using 252 trading days.
+
+    Skip pairs containing invalid prices instead of bridging across them.
+    """
+    observations = [price for _, price in sorted(prices.items())]
+    returns = []
+    for i in range(1, len(observations)):
+        current_price = observations[i]
+        previous_price = observations[i - 1]
+
+        if not (isfinite(previous_price) and previous_price > 0 and isfinite(current_price) and current_price > 0):
+            continue
+
+        daily_return = current_price / previous_price - 1
+        if isfinite(daily_return):
+            returns.append(daily_return)
+
+    if len(returns) < 2:
+        raise ValueError("At least two valid daily returns are required")
+
+    volatility = stdev(returns) * sqrt(252)
+    if not isfinite(volatility):
+        raise ValueError("Annual volatility could not be calculated")
+
+    return volatility
+
+
 def research(tickers: list[str], equity_service: EquityService) -> None:
-    """Print annual returns using up to five years of adjusted closing prices."""
+    """Print annual return and volatility from up to five years of adjusted daily prices."""
     if not tickers:
         print("No tickers provided.")
         return
@@ -42,23 +71,34 @@ def research(tickers: list[str], equity_service: EquityService) -> None:
         min(today.day, monthrange(start_year, today.month)[1]),
     )
 
-    rows: list[tuple[str, str]] = []
+    rows: list[list[str]] = []
     errors: list[str] = []
     for ticker in tickers:
         ticker = ticker.strip().upper()
         try:
             prices = equity_service.get_price_history(ticker, start_date, today)
-            annual_return = calculate_annual_return(prices)
-            rows.append((ticker, f"{annual_return:.2%}"))
         except Exception as error:
-            rows.append((ticker, "N/A"))
+            rows.append([ticker, "N/A", "N/A"])
             errors.append(f"{ticker}: {error}")
+            continue
+
+        row = [ticker]
+        for name, calculate in (
+            ("Annual Return", calculate_annual_return),
+            ("Annual Volatility", calculate_annual_volatility),
+        ):
+            try:
+                row.append(f"{calculate(prices):.2%}")
+            except Exception as error:
+                row.append("N/A")
+                errors.append(f"{ticker} - {name}: {error}")
+        rows.append(row)
 
     print(tabulate(
         rows,
-        headers=["Ticker", "Annual Return"],
+        headers=["Ticker", "Annual Return", "Annual Volatility"],
         tablefmt="simple",
-        colalign=("left", "right"),
+        colalign=("left", "right", "right"),
         disable_numparse=True,
     ))
 

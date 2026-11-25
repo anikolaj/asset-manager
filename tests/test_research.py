@@ -1,10 +1,11 @@
 from datetime import date, timedelta
+from math import sqrt
 from unittest.mock import MagicMock
 
 import pytest
 
 from asset_manager.cli import CLI
-from asset_manager.research import calculate_annual_return, research
+from asset_manager.research import calculate_annual_return, calculate_annual_volatility, research
 
 
 @pytest.mark.parametrize("days, final_price", [(1826, 200), (180, 120), (731, 80), (365, 100)])
@@ -37,6 +38,69 @@ def test_annual_return_ignores_missing_and_invalid_prices():
         start + timedelta(days=1463): float("inf"),
     }
     assert calculate_annual_return(prices) == pytest.approx(2 ** 0.25 - 1)
+
+
+def test_annual_volatility_uses_sample_daily_returns_in_date_order():
+    # Returns are +10%, -10%, +10%; sample variance is 0.04 / 3.
+    prices = {
+        date(2026, 1, 8): 108.9,
+        date(2026, 1, 5): 100,
+        date(2026, 1, 7): 99,
+        date(2026, 1, 6): 110,
+    }
+    assert calculate_annual_volatility(prices) == pytest.approx(sqrt(0.04 / 3 * 252))
+
+
+@pytest.mark.parametrize("values", [[100, 100, 100], [100, 110, 121]])
+def test_constant_daily_returns_have_zero_volatility(values):
+    start = date(2026, 1, 5)
+    prices = {start + timedelta(days=i): value for i, value in enumerate(values)}
+    assert calculate_annual_volatility(prices) == pytest.approx(0, abs=1e-12)
+
+
+@pytest.mark.parametrize("count", [0, 1, 2])
+def test_annual_volatility_requires_two_daily_returns(count):
+    start = date(2026, 1, 5)
+    prices = {start + timedelta(days=i): 100 + i for i in range(count)}
+    with pytest.raises(ValueError, match="two valid daily returns"):
+        calculate_annual_volatility(prices)
+
+
+@pytest.mark.parametrize("invalid", [float("nan"), float("inf"), 0, -1])
+def test_volatility_does_not_bridge_invalid_prices(invalid):
+    values = [100, 110, invalid, 200, 180]
+    start = date(2026, 1, 5)
+    prices = {start + timedelta(days=i): value for i, value in enumerate(values)}
+    # Only +10% and -10% are usable; no return spans the invalid observation.
+    assert calculate_annual_volatility(prices) == pytest.approx(sqrt(0.02 * 252))
+
+
+def test_research_prints_both_statistics_with_one_price_fetch(capsys):
+    service = MagicMock()
+    start = date(2026, 1, 5)
+    service.get_price_history.return_value = {
+        start: 100, start + timedelta(days=1): 110, start + timedelta(days=2): 99,
+    }
+
+    research(["TEST"], equity_service=service)
+
+    output = capsys.readouterr().out
+    assert "Annual Volatility" in output
+    row = next(line for line in output.splitlines() if line.startswith("TEST"))
+    assert row.split() == ["TEST", "-84.05%", "224.50%"]
+    service.get_price_history.assert_called_once()
+
+
+def test_insufficient_volatility_history_preserves_annual_return(capsys):
+    service = MagicMock()
+    today = date.today()
+    service.get_price_history.return_value = {today - timedelta(days=1461): 100, today: 200}
+
+    research(["SHORT"], equity_service=service)
+
+    output = capsys.readouterr().out
+    row = next(line for line in output.splitlines() if line.startswith("SHORT ") and " - " not in line)
+    assert row.split() == ["SHORT", "18.92%", "N/A"]
 
 
 def test_research_prints_returns_and_continues_after_failed_ticker(capsys):
